@@ -82,7 +82,7 @@ const BookingReviewScreen = ({ navigation }) => {
         <Text style={[styles.sectionTitle, { marginTop: spacing.xl }]}>ملخص التكلفة</Text>
         <Card>
           <View style={styles.costRow}>
-            <Text style={styles.costValue}>{selectedService?.price || 120.00} ر.س</Text>
+            <Text style={styles.costValue}>{selectedService?.price || 120.00} ج.م</Text>
             <Text style={styles.costLabel}>تكلفة الخدمة</Text>
           </View>
         </Card>

@@ -19,11 +19,11 @@ const Header = ({
   return (
     <View style={[styles.container, transparent && styles.transparent, style]}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      {/* Right side (back button in RTL) */}
+      {/* Left side (Action/Menu Button) */}
       <View style={styles.side}>
-        {onBack && (
-          <TouchableOpacity onPress={onBack} style={styles.iconButton}>
-            <Ionicons name="chevron-forward" size={22} color={colors.text.primary} />
+        {(leftIcon || rightIcon) && (
+          <TouchableOpacity onPress={onLeftPress || onRightPress} style={styles.iconButton}>
+            <Ionicons name={leftIcon || rightIcon} size={22} color={colors.text.primary} />
           </TouchableOpacity>
         )}
       </View>
@@ -31,11 +31,11 @@ const Header = ({
       {/* Title */}
       <Text style={styles.title} numberOfLines={1}>{title}</Text>
 
-      {/* Left side */}
+      {/* Right side (back button) */}
       <View style={styles.side}>
-        {(leftIcon || rightIcon) && (
-          <TouchableOpacity onPress={onLeftPress || onRightPress} style={styles.iconButton}>
-            <Ionicons name={leftIcon || rightIcon} size={22} color={colors.text.primary} />
+        {onBack && (
+          <TouchableOpacity onPress={onBack} style={styles.iconButton}>
+            <Ionicons name="chevron-forward" size={22} color={colors.text.primary} />
           </TouchableOpacity>
         )}
       </View>

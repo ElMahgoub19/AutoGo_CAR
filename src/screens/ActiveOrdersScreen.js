@@ -21,7 +21,7 @@ const ActiveOrdersScreen = ({ navigation }) => {
   return (
     <LinearGradient colors={colors.gradient.primary} style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-      <Header title="الطلبات النشطة" onBack={() => navigation.goBack()} />
+      <Header title="الطلبات النشطة" onBack={() => navigation.navigate('HomeTab')} />
 
       {/* Filter tabs */}
       <View style={styles.filters}>

@@ -31,7 +31,7 @@ const TowTypeScreen = ({ navigation }) => {
                 <View style={styles.towInfo}>
                   <Text style={styles.towName}>{tow.name}</Text>
                   <Text style={styles.towDesc}>{tow.description}</Text>
-                  <Text style={styles.towPrice}>{tow.price} ر.س</Text>
+                  <Text style={styles.towPrice}>{tow.price} ج.م</Text>
                 </View>
                 <View style={[styles.towIcon, selected === tow.id && styles.selectedIcon]}>
                   <Ionicons name="car" size={28} color={selected === tow.id ? colors.accent.primary : colors.text.tertiary} />

@@ -15,9 +15,10 @@ const LoginScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { isLoading } = useSelector(state => state.auth);
   const [phone, setPhone] = useState('');
+  const [agreed, setAgreed] = useState(false);
 
   const handleLogin = async () => {
-    if (phone.length >= 9) {
+    if (phone.length >= 10 && agreed) {
       const result = await dispatch(loginWithPhone(phone));
       if (loginWithPhone.fulfilled.match(result)) {
         navigation.navigate('OTP', { phone });
@@ -49,21 +50,38 @@ const LoginScreen = ({ navigation }) => {
           {/* Phone input */}
           <View style={styles.formContainer}>
             <Input
-              label="رقم الجوال"
+              label="رقم الموبايل"
               value={phone}
               onChangeText={setPhone}
-              placeholder="5X XXX XXXX"
+              placeholder="1X XXXX XXXX"
               keyboardType="phone-pad"
-              prefix="+966"
+              prefix="+20"
               maxLength={10}
             />
+
+            {/* Terms checkbox */}
+            <TouchableOpacity 
+              style={styles.checkRow} 
+              onPress={() => setAgreed(!agreed)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.checkText}>
+                أوافق على{' '}
+                <Text style={styles.checkLink} onPress={() => navigation.navigate('Terms')}>شروط الخدمة</Text>
+                {' '}و{' '}
+                <Text style={styles.checkLink} onPress={() => navigation.navigate('Terms')}>سياسة الخصوصية</Text>
+              </Text>
+              <View style={[styles.checkbox, agreed && styles.checkboxChecked]}>
+                {agreed && <Ionicons name="checkmark" size={14} color={colors.button.primaryText} />}
+              </View>
+            </TouchableOpacity>
 
             <Button
               title="متابعة"
               onPress={handleLogin}
               loading={isLoading}
-              disabled={phone.length < 9}
-              style={{ marginTop: spacing.sm }}
+              disabled={phone.length < 10 || !agreed}
+              style={{ marginTop: spacing.base }}
             />
           </View>
 
@@ -141,6 +159,36 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xxl,
   },
   formContainer: { marginBottom: spacing.lg },
+  checkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: spacing.sm,
+    marginBottom: spacing.base,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: colors.accent.primary,
+    borderColor: colors.accent.primary,
+  },
+  checkText: {
+    ...typography.bodySmall,
+    color: colors.text.secondary,
+    flex: 1,
+    textAlign: 'right',
+  },
+  checkLink: { 
+    color: colors.accent.primary, 
+    textDecorationLine: 'underline' 
+  },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',

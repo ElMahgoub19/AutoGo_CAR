@@ -20,18 +20,18 @@ const InvoiceScreen = ({ navigation }) => (
           <Ionicons name="checkmark-circle" size={36} color={colors.status.success} />
         </View>
         <Text style={{ ...typography.label, color: colors.status.success }}>تمت عملية الدفع بنجاح</Text>
-        <Text style={{ fontSize: 42, fontWeight: '800', color: colors.text.primary, marginTop: spacing.sm }}>285.00 <Text style={{ ...typography.h4, color: colors.text.secondary }}>ر.س</Text></Text>
+        <Text style={{ fontSize: 42, fontWeight: '800', color: colors.text.primary, marginTop: spacing.sm }}>285.00 <Text style={{ ...typography.h4, color: colors.text.secondary }}>ج.م</Text></Text>
         <Text style={{ ...typography.bodySmall, color: colors.text.tertiary, marginTop: 4 }}>الخميس، 15 مايو 2025 • 04:30 م</Text>
       </View>
 
       <Card style={{ marginBottom: spacing.lg }}>
         <Text style={{ ...typography.label, color: colors.text.secondary, textAlign: 'right', marginBottom: spacing.md }}>تفاصيل الخدمات</Text>
         {[
-          { label: 'غسيل ذكي (خارجي وداخلي)', value: '150.00 ر.س' },
-          { label: 'فحص ضغط الإطارات', value: '45.00 ر.س' },
-          { label: 'إضافة معطر جو بريميوم', value: '25.00 ر.س' },
-          { label: 'خصم العميل الوفي (15%)', value: '33.00- ر.س', accent: true },
-          { label: 'ضريبة القيمة المضافة (15%)', value: '98.00 ر.س' },
+          { label: 'غسيل ذكي (خارجي وداخلي)', value: '150.00 ج.م' },
+          { label: 'فحص ضغط الإطارات', value: '45.00 ج.م' },
+          { label: 'إضافة معطر جو بريميوم', value: '25.00 ج.م' },
+          { label: 'خصم العميل الوفي (15%)', value: '33.00- ج.م', accent: true },
+          { label: 'ضريبة القيمة المضافة (15%)', value: '98.00 ج.م' },
         ].map((row, i) => (
           <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm }}>
             <Text style={{ ...typography.bodySmall, color: row.accent ? colors.accent.primary : colors.text.secondary }}>{row.value}</Text>
@@ -39,7 +39,7 @@ const InvoiceScreen = ({ navigation }) => (
           </View>
         ))}
         <View style={{ borderTopWidth: 1, borderTopColor: colors.divider, borderStyle: 'dashed', paddingTop: spacing.md, marginTop: spacing.sm, flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={{ ...typography.priceSmall, color: colors.accent.primary }}>285.00 ر.س</Text>
+          <Text style={{ ...typography.priceSmall, color: colors.accent.primary }}>285.00 ج.م</Text>
           <Text style={{ ...typography.h4, color: colors.text.primary }}>الإجمالي الكلي</Text>
         </View>
       </Card>

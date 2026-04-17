@@ -1,0 +1,368 @@
+// AutoGo Backend - Prisma Schema
+// All 18 tables for the full application
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── USERS ────────────────────────────────────────────────────────
+model User {
+  id              String    @id @default(uuid())
+  name            String
+  phone           String    @unique
+  email           String?   @unique
+  avatarUrl       String?   @map("avatar_url")
+  city            String?
+  membershipType  String    @default("عادي") @map("membership_type")
+  points          Int       @default(0)
+  isVerified      Boolean   @default(false) @map("is_verified")
+  fcmToken        String?   @map("fcm_token")
+  settings        Json      @default("{}")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  cars            Car[]
+  addresses       Address[]
+  orders          Order[]
+  notifications   Notification[]
+  wallet          Wallet?
+  paymentMethods  PaymentMethod[]
+  ratings         Rating[]
+
+  @@map("users")
+}
+
+// ─── CARS ─────────────────────────────────────────────────────────
+model Car {
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  brand         String
+  model         String
+  year          Int
+  plate         String
+  color         String?
+  mileage       Int       @default(0)
+  nextServiceKm Int       @default(5000) @map("next_service_km")
+  status        String    @default("نشط")
+  imageUrl      String?   @map("image_url")
+  isActive      Boolean   @default(false) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reminders     CarReminder[]
+  orders        Order[]
+
+  @@map("cars")
+}
+
+model CarReminder {
+  id          String    @id @default(uuid())
+  carId       String    @map("car_id")
+  type        String    // license | insurance | service
+  message     String
+  dueDate     DateTime? @map("due_date")
+  isUrgent    Boolean   @default(false) @map("is_urgent")
+  isDismissed Boolean   @default(false) @map("is_dismissed")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  car         Car       @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  @@map("car_reminders")
+}
+
+// ─── ADDRESSES ────────────────────────────────────────────────────
+model Address {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  label     String
+  address   String
+  latitude  Decimal?  @db.Decimal(10, 7)
+  longitude Decimal?  @db.Decimal(10, 7)
+  isDefault Boolean   @default(false) @map("is_default")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("addresses")
+}
+
+// ─── SERVICES ─────────────────────────────────────────────────────
+model ServiceCategory {
+  id        String    @id @default(uuid())
+  name      String
+  icon      String?
+  sortOrder Int       @default(0) @map("sort_order")
+
+  services  Service[]
+
+  @@map("service_categories")
+}
+
+model Service {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  basePrice   Decimal   @map("base_price") @db.Decimal(10, 2)
+  categoryId  String?   @map("category_id")
+  icon        String?
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  category    ServiceCategory? @relation(fields: [categoryId], references: [id])
+  workshops   WorkshopService[]
+  orders      Order[]
+
+  @@map("services")
+}
+
+// ─── WORKSHOPS ────────────────────────────────────────────────────
+model Workshop {
+  id          String    @id @default(uuid())
+  name        String
+  address     String
+  latitude    Decimal   @db.Decimal(10, 7)
+  longitude   Decimal   @db.Decimal(10, 7)
+  phone       String?
+  rating      Decimal   @default(0) @db.Decimal(2, 1)
+  reviewCount Int       @default(0) @map("review_count")
+  isOpen      Boolean   @default(true) @map("is_open")
+  openHours   String?   @map("open_hours")
+  workDays    String?   @map("work_days")
+  imageUrl    String?   @map("image_url")
+  features    String[]
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  services    WorkshopService[]
+  orders      Order[]
+  ratings     Rating[]
+
+  @@map("workshops")
+}
+
+model WorkshopService {
+  workshopId  String    @map("workshop_id")
+  serviceId   String    @map("service_id")
+  customPrice Decimal?  @map("custom_price") @db.Decimal(10, 2)
+
+  workshop    Workshop  @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  service     Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@id([workshopId, serviceId])
+  @@map("workshop_services")
+}
+
+// ─── DRIVERS ──────────────────────────────────────────────────────
+model Driver {
+  id           String    @id @default(uuid())
+  name         String
+  phone        String    @unique
+  avatarUrl    String?   @map("avatar_url")
+  rating       Decimal   @default(5.0) @db.Decimal(2, 1)
+  reviewCount  Int       @default(0) @map("review_count")
+  towType      String?   @map("tow_type")
+  vehiclePlate String?   @map("vehicle_plate")
+  isOnline     Boolean   @default(false) @map("is_online")
+  currentLat   Decimal?  @map("current_lat") @db.Decimal(10, 7)
+  currentLng   Decimal?  @map("current_lng") @db.Decimal(10, 7)
+  fcmToken     String?   @map("fcm_token")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  orders       Order[]
+  ratings      Rating[]
+
+  @@map("drivers")
+}
+
+// ─── ORDERS ───────────────────────────────────────────────────────
+model Order {
+  id             String    @id @default(uuid())
+  orderNumber    String    @unique @map("order_number")
+  userId         String    @map("user_id")
+  carId          String?   @map("car_id")
+  driverId       String?   @map("driver_id")
+  workshopId     String?   @map("workshop_id")
+  serviceId      String?   @map("service_id")
+  type           String    // ونش | صيانة | غسيل
+  status         String    @default("pending")
+  pickupLat      Decimal?  @map("pickup_lat") @db.Decimal(10, 7)
+  pickupLng      Decimal?  @map("pickup_lng") @db.Decimal(10, 7)
+  pickupAddress  String?   @map("pickup_address")
+  scheduledDate  DateTime? @map("scheduled_date") @db.Date
+  scheduledTime  DateTime? @map("scheduled_time") @db.Time()
+  serviceMethod  String?   @map("service_method")
+  price          Decimal?  @db.Decimal(10, 2)
+  discount       Decimal   @default(0) @db.Decimal(10, 2)
+  tax            Decimal   @default(0) @db.Decimal(10, 2)
+  total          Decimal?  @db.Decimal(10, 2)
+  paymentMethod  String?   @map("payment_method")
+  paymentStatus  String    @default("pending") @map("payment_status")
+  promoCode      String?   @map("promo_code")
+  notes          String?
+  etaMinutes     Int?      @map("eta_minutes")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  completedAt    DateTime? @map("completed_at")
+
+  user           User      @relation(fields: [userId], references: [id])
+  car            Car?      @relation(fields: [carId], references: [id])
+  driver         Driver?   @relation(fields: [driverId], references: [id])
+  workshop       Workshop? @relation(fields: [workshopId], references: [id])
+  service        Service?  @relation(fields: [serviceId], references: [id])
+  tracking       OrderTracking[]
+  messages       Message[]
+  rating         Rating?
+  invoice        Invoice?
+
+  @@map("orders")
+}
+
+model OrderTracking {
+  id          String    @id @default(uuid())
+  orderId     String    @map("order_id")
+  status      String
+  label       String
+  timestamp   DateTime  @default(now())
+  isCompleted Boolean   @default(false) @map("is_completed")
+
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_tracking")
+}
+
+// ─── MESSAGES ─────────────────────────────────────────────────────
+model Message {
+  id            String    @id @default(uuid())
+  orderId       String    @map("order_id")
+  senderType    String    @map("sender_type") // user | driver
+  senderId      String    @map("sender_id")
+  text          String
+  attachmentUrl String?   @map("attachment_url")
+  isRead        Boolean   @default(false) @map("is_read")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+// ─── RATINGS ──────────────────────────────────────────────────────
+model Rating {
+  id          String    @id @default(uuid())
+  orderId     String    @unique @map("order_id")
+  userId      String    @map("user_id")
+  driverId    String?   @map("driver_id")
+  workshopId  String?   @map("workshop_id")
+  score       Int
+  tags        String[]
+  comment     String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  order       Order     @relation(fields: [orderId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+  driver      Driver?   @relation(fields: [driverId], references: [id])
+  workshop    Workshop? @relation(fields: [workshopId], references: [id])
+
+  @@map("ratings")
+}
+
+// ─── WALLET & PAYMENTS ───────────────────────────────────────────
+model Wallet {
+  id        String    @id @default(uuid())
+  userId    String    @unique @map("user_id")
+  balance   Decimal   @default(0) @db.Decimal(10, 2)
+  currency  String    @default("EGP")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+
+  @@map("wallets")
+}
+
+model Transaction {
+  id            String    @id @default(uuid())
+  walletId      String    @map("wallet_id")
+  orderId       String?   @map("order_id")
+  type          String    // deposit | payment | refund
+  amount        Decimal   @db.Decimal(10, 2)
+  title         String
+  paymentMethod String?   @map("payment_method")
+  status        String    @default("completed")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  wallet        Wallet    @relation(fields: [walletId], references: [id])
+
+  @@map("transactions")
+}
+
+model PaymentMethod {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  type      String    // meeza | vodafone_cash | fawry | visa | mastercard
+  label     String?
+  lastFour  String?   @map("last_four")
+  isDefault Boolean   @default(false) @map("is_default")
+  token     String?
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payment_methods")
+}
+
+// ─── NOTIFICATIONS ────────────────────────────────────────────────
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  title     String
+  body      String
+  type      String    // urgent | success | promo | reminder
+  action    String?
+  isRead    Boolean   @default(false) @map("is_read")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// ─── INVOICES ─────────────────────────────────────────────────────
+model Invoice {
+  id           String    @id @default(uuid())
+  orderId      String    @unique @map("order_id")
+  invoiceNo    String    @unique @map("invoice_no")
+  subtotal     Decimal   @db.Decimal(10, 2)
+  discount     Decimal   @default(0) @db.Decimal(10, 2)
+  tax          Decimal   @default(0) @db.Decimal(10, 2)
+  total        Decimal   @db.Decimal(10, 2)
+  items        Json      @default("[]")
+  paymentMethod String?  @map("payment_method")
+  paymentStatus String   @default("paid") @map("payment_status")
+  pdfUrl       String?   @map("pdf_url")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  order        Order     @relation(fields: [orderId], references: [id])
+
+  @@map("invoices")
+}
+
+// ─── PROMO CODES ──────────────────────────────────────────────────
+model PromoCode {
+  id            String    @id @default(uuid())
+  code          String    @unique
+  discountType  String    @map("discount_type") // percentage | fixed
+  discountValue Decimal   @map("discount_value") @db.Decimal(10, 2)
+  maxUses       Int       @default(1) @map("max_uses")
+  currentUses   Int       @default(0) @map("current_uses")
+  validFrom     DateTime? @map("valid_from")
+  validUntil    DateTime? @map("valid_until")
+  isActive      Boolean   @default(true) @map("is_active")
+
+  @@map("promo_codes")
+}

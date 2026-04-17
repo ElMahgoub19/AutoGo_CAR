@@ -23,6 +23,24 @@ export const verifyOTP = createAsyncThunk('auth/verifyOTP', async ({ phone, otp 
   }
 });
 
+export const signUpWithPhone = createAsyncThunk('auth/signUpWithPhone', async ({ name, phone, email }, { rejectWithValue }) => {
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    return { phone, name, email, otpSent: true };
+  } catch (err) {
+    return rejectWithValue('خطأ في إنشاء الحساب');
+  }
+});
+
+export const resetPassword = createAsyncThunk('auth/resetPassword', async ({ method, value }, { rejectWithValue }) => {
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return { method, value, sent: true };
+  } catch (err) {
+    return rejectWithValue('خطأ في إرسال رابط الاسترداد');
+  }
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
@@ -79,6 +97,26 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
       })
       .addCase(verifyOTP.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Sign up
+      .addCase(signUpWithPhone.pending, (state) => { state.isLoading = true; state.error = null; })
+      .addCase(signUpWithPhone.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.otpSent = true;
+        state.phone = action.payload.phone;
+      })
+      .addCase(signUpWithPhone.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Reset password
+      .addCase(resetPassword.pending, (state) => { state.isLoading = true; state.error = null; })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });

@@ -62,7 +62,7 @@ const OTPScreen = ({ navigation, route }) => {
       <View style={styles.content}>
         <Text style={styles.title}>رمز التحقق</Text>
         <Text style={styles.subtitle}>أدخل الرمز المكون من 4 أرقام المرسل إلى الرقم</Text>
-        <Text style={styles.phone}>+966 {phone}</Text>
+        <Text style={styles.phone}>+20 {phone}</Text>
 
         {/* OTP Inputs */}
         <View style={styles.otpContainer}>

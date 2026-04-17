@@ -35,12 +35,12 @@ const PaymentScreen = ({ navigation, route }) => {
         {/* Price summary */}
         <Card style={styles.priceCard}>
           <View style={styles.priceRow}>
-            <Text style={styles.priceAmount}>{price.toFixed(2)} ر.س</Text>
+            <Text style={styles.priceAmount}>{price.toFixed(2)} ج.م</Text>
             <Text style={styles.priceLabel}>التكلفة التقديرية</Text>
           </View>
           <View style={styles.priceDivider} />
           <View style={styles.breakdownRow}>
-            <Text style={styles.breakdownValue}>{price.toFixed(2)} ر.س</Text>
+            <Text style={styles.breakdownValue}>{price.toFixed(2)} ج.م</Text>
             <Text style={styles.breakdownLabel}>رسوم الخدمة</Text>
           </View>
           <View style={styles.breakdownRow}>

@@ -51,9 +51,9 @@ const OrderDetailScreen = ({ navigation, route }) => {
         <Card style={{ marginBottom: spacing.lg }}>
           <Text style={{ ...typography.label, color: colors.text.secondary, textAlign: 'right', marginBottom: spacing.md }}>ملخص الفاتورة</Text>
           {[
-            { label: 'قيمة الخدمات', value: '195.00 ر.س' },
-            { label: 'ضريبة القيمة المضافة (15%)', value: '29.25 ر.س' },
-            { label: 'خصم بروموكود (WELCOME)', value: '25.00- ر.س', isDiscount: true },
+            { label: 'قيمة الخدمات', value: '195.00 ج.م' },
+            { label: 'ضريبة القيمة المضافة (15%)', value: '29.25 ج.م' },
+            { label: 'خصم بروموكود (WELCOME)', value: '25.00- ج.م', isDiscount: true },
           ].map((row, i) => (
             <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm }}>
               <Text style={{ ...typography.bodySmall, color: row.isDiscount ? colors.accent.primary : colors.text.secondary }}>{row.value}</Text>
@@ -61,7 +61,7 @@ const OrderDetailScreen = ({ navigation, route }) => {
             </View>
           ))}
           <View style={{ borderTopWidth: 1, borderTopColor: colors.divider, borderStyle: 'dashed', paddingTop: spacing.md, marginTop: spacing.sm, flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={{ ...typography.priceSmall, color: colors.accent.primary }}>199.25 ر.س</Text>
+            <Text style={{ ...typography.priceSmall, color: colors.accent.primary }}>199.25 ج.م</Text>
             <Text style={{ ...typography.h4, color: colors.text.primary }}>الإجمالي الكلي</Text>
           </View>
         </Card>

@@ -51,6 +51,11 @@ import HistoryScreen from '../screens/HistoryScreen';
 import InvoiceScreen from '../screens/InvoiceScreen';
 import SupportScreen from '../screens/SupportScreen';
 import TermsScreen from '../screens/TermsScreen';
+import SignUpScreen from '../screens/SignUpScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import SettingsScreen from '../screens/SettingsScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
+import HelpCenterScreen from '../screens/HelpCenterScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -59,6 +64,7 @@ const Tab = createBottomTabNavigator();
 const MainTabs = () => {
   return (
     <Tab.Navigator
+      initialRouteName="HomeTab"
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
@@ -81,17 +87,8 @@ const MainTabs = () => {
           switch (route.name) {
             case 'HomeTab': iconName = focused ? 'home' : 'home-outline'; break;
             case 'GarageTab': iconName = focused ? 'car-sport' : 'car-sport-outline'; break;
-            case 'SOSTab': iconName = 'warning'; break;
             case 'OrdersTab': iconName = focused ? 'list-circle' : 'list-circle-outline'; break;
             case 'ProfileTab': iconName = focused ? 'person' : 'person-outline'; break;
-          }
-
-          if (route.name === 'SOSTab') {
-            return (
-              <View style={styles.sosTab}>
-                <Ionicons name="warning" size={28} color="#FFF" />
-              </View>
-            );
           }
 
           return <Ionicons name={iconName} size={24} color={color} />;
@@ -100,7 +97,6 @@ const MainTabs = () => {
     >
       <Tab.Screen name="ProfileTab" component={ProfileScreen} options={{ tabBarLabel: 'حسابي' }} />
       <Tab.Screen name="OrdersTab" component={ActiveOrdersScreen} options={{ tabBarLabel: 'طلباتي' }} />
-      <Tab.Screen name="SOSTab" component={SOSScreen} options={{ tabBarLabel: 'طوارئ' }} />
       <Tab.Screen name="GarageTab" component={GarageScreen} options={{ tabBarLabel: 'جراجي' }} />
       <Tab.Screen name="HomeTab" component={HomeScreen} options={{ tabBarLabel: 'الرئيسية' }} />
     </Tab.Navigator>
@@ -122,6 +118,8 @@ const AppNavigator = () => {
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="OTP" component={OTPScreen} />
             <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           </>
         ) : (
           // Main app flow
@@ -161,6 +159,9 @@ const AppNavigator = () => {
             <Stack.Screen name="Invoice" component={InvoiceScreen} />
             <Stack.Screen name="Support" component={SupportScreen} />
             <Stack.Screen name="Terms" component={TermsScreen} />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+            <Stack.Screen name="HelpCenter" component={HelpCenterScreen} />
           </>
         )}
       </Stack.Navigator>
@@ -168,21 +169,6 @@ const AppNavigator = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  sosTab: {
-    width: 62,
-    height: 62,
-    borderRadius: 31,
-    backgroundColor: '#E53E3E',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-    shadowColor: '#E53E3E',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-});
+const styles = StyleSheet.create({});
 
 export default AppNavigator;

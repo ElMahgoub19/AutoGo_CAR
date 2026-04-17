@@ -1,10 +1,10 @@
 // AutoGo - Mock Data
 export const mockUser = {
   id: 'user_001',
-  name: 'محمد العتيبي',
-  phone: '+966 50 123 4567',
-  email: 'mohammed@email.com',
-  city: 'الرياض، المملكة العربية السعودية',
+  name: 'محمد علي',
+  phone: '+20 10 1234 5678',
+  email: 'mohamed@email.com',
+  city: 'القاهرة، مصر',
   avatar: null,
   membershipType: 'بريميوم',
   points: 2450,
@@ -14,8 +14,8 @@ export const mockUser = {
 export const mockCars = [
   {
     id: 'car_001',
-    brand: 'تسلا',
-    model: 'موديل 3',
+    brand: 'هيونداي',
+    model: 'إلنترا',
     year: 2024,
     plate: 'أ ب ج 1234',
     mileage: 45200,
@@ -23,15 +23,15 @@ export const mockCars = [
     status: 'نشط',
     color: '#FFFFFF',
     image: null,
-    lastLocation: { lat: 24.7136, lng: 46.6753, address: 'الرياض، حي الملقا' },
+    lastLocation: { lat: 30.0444, lng: 31.2357, address: 'القاهرة، المعادي' },
     reminders: [
       { type: 'license', message: 'باقي 15 يوم على انتهاء رخصة السيارة', urgent: true },
     ],
   },
   {
     id: 'car_002',
-    brand: 'مرسيدس',
-    model: 'G-Class',
+    brand: 'كيا',
+    model: 'سبورتيدج',
     year: 2023,
     plate: 'د هـ و 5678',
     mileage: 13800,
@@ -45,61 +45,83 @@ export const mockCars = [
 ];
 
 export const mockServices = [
-  {
-    id: 'srv_001',
-    name: 'تغيير الزيت والفلاتر',
-    description: 'حماية المحرك وزيادة عمره الافتراضي مع زيت أصلي',
-    price: 120,
-    icon: 'water',
-    category: 'فلاتر وزيوت',
-  },
-  {
-    id: 'srv_002',
-    name: 'فحص وتغيير البطارية',
-    description: 'تأكد من قوة التشغيل في جميع الظروف المناخية',
-    price: 80,
-    icon: 'battery-half',
-    category: 'كهرباء',
-  },
-  {
-    id: 'srv_003',
-    name: 'صيانة المكابح',
-    description: 'الأمان أولاً، فحص الفحمات ونظام الهيدروليك',
-    price: 150,
-    icon: 'disc',
-    category: 'ميكانيكا',
-  },
-  {
-    id: 'srv_004',
-    name: 'صيانة التكييف',
-    description: 'تبريد مثالي وفحص تسريب الفريون وتنظيف الفلتر',
-    price: 200,
-    icon: 'snowflake',
-    category: 'كهرباء',
-  },
-  {
-    id: 'srv_005',
-    name: 'غسيل ذكي بريميوم',
-    description: 'تنظيف شامل للهيكل الخارجي مع تلميع داخلي نانو سيراميك',
-    price: 150,
-    icon: 'sparkles',
-    category: 'الكل',
-  },
-  {
-    id: 'srv_006',
-    name: 'فحص ضغط الإطارات',
-    description: 'تعديل الضغط لجميع الإطارات وفحص عمق المداس',
-    price: 45,
-    icon: 'circle',
-    category: 'ميكانيكا',
-  },
+  // --- صيانة دورية (Maintenance) ---
+  { id: 'srv_001', name: 'تغيير الزيت والفلاتر', description: 'حماية المحرك وزيادة عمره الافتراضي مع زيت أصلي', price: 120, icon: 'water', category: 'صيانة دورية' },
+  { id: 'mnt_001', name: 'تغيير فلتر الهواء', description: 'استبدال فلتر الهواء لضمان نقاء المحرك', price: 50, icon: 'leaf', category: 'صيانة دورية' },
+  { id: 'mnt_002', name: 'تغيير فلتر البنزين', description: 'لضمان أداء سلس وتوفير استهلاك الوقود', price: 60, icon: 'color-filter', category: 'صيانة دورية' },
+  { id: 'mnt_003', name: 'تغيير فلتر التكييف', description: 'تنقية هواء المقصورة من الأتربة', price: 40, icon: 'barcode', category: 'صيانة دورية' },
+  { id: 'mnt_004', name: 'فحص السوائل', description: 'مراجعة مياه رادياتير وفرامل وزيت', price: 30, icon: 'beaker', category: 'صيانة دورية' },
+  { id: 'srv_006', name: 'فحص ضغط الإطارات', description: 'تعديل الضغط لجميع الإطارات', price: 45, icon: 'speedometer', category: 'صيانة دورية' },
+  { id: 'srv_002', name: 'فحص البطارية', description: 'التأكد من قوة التشغيل في جميع الظروف', price: 80, icon: 'battery-half', category: 'صيانة دورية' },
+
+  // --- ميكانيكا (Mechanical) ---
+  { id: 'mec_001', name: 'صيانة المحرك', description: 'فحص المحرك وتشخيص المشكلات والإصلاح', price: 500, icon: 'settings', category: 'ميكانيكا' },
+  { id: 'mec_002', name: 'تغيير سيور', description: 'تغيير سير الكاتينة وسير الدينامو', price: 300, icon: 'sync', category: 'ميكانيكا' },
+  { id: 'mec_003', name: 'صيانة الفتيس', description: 'إصلاح أعطال الفتيس (Gearbox)', price: 700, icon: 'construct', category: 'ميكانيكا' },
+  { id: 'mec_004', name: 'إصلاح العفشة', description: 'فحص وإصلاح المساعدين والمقصات', price: 400, icon: 'hardware-chip', category: 'ميكانيكا' },
+  { id: 'mec_005', name: 'إصلاح نظام التبريد', description: 'صيانة الرادياتير والمراوح ودائرة التبريد', price: 200, icon: 'thermometer', category: 'ميكانيكا' },
+  { id: 'mec_006', name: 'إصلاح تسريب الزيت', description: 'معالجة ومنع تسريب زيت المحرك', price: 250, icon: 'water', category: 'ميكانيكا' },
+  { id: 'mec_007', name: 'تغيير طلمبة المياه', description: 'تغيير طرمبة المياه لضمان التبريد', price: 300, icon: 'water-outline', category: 'ميكانيكا' },
+  { id: 'srv_003', name: 'صيانة المكابح', description: 'الأمان أولاً، فحص الفحمات ونظام الهيدروليك', price: 150, icon: 'shield-checkmark', category: 'ميكانيكا' },
+
+  // --- كهرباء (Electrical) ---
+  { id: 'ele_001', name: 'تغيير بطارية', description: 'استبدال البطارية القديمة بأخرى جديدة', price: 100, icon: 'battery-full', category: 'كهرباء' },
+  { id: 'ele_002', name: 'شحن بطارية', description: 'تقويمها في مكان تعطل السيارة', price: 50, icon: 'flash', category: 'كهرباء' },
+  { id: 'ele_003', name: 'إصلاح الأعطال الكهربائية', description: 'فحص ضفيرة السيارة والحساسات', price: 150, icon: 'flash-outline', category: 'كهرباء' },
+  { id: 'ele_004', name: 'إصلاح الأنوار', description: 'فحص وتغيير المصابيح الأمامية والخلفية', price: 80, icon: 'bulb', category: 'كهرباء' },
+  { id: 'ele_005', name: 'إصلاح المارش', description: 'فحص وإصلاح نظام بدء الدوران (Starter)', price: 200, icon: 'sync-circle', category: 'كهرباء' },
+  { id: 'ele_006', name: 'إصلاح الدينامو', description: 'فحص وإصلاح دائرة شحن الكهرباء', price: 250, icon: 'battery-charging', category: 'كهرباء' },
+
+  // --- تكييف (AC) ---
+  { id: 'srv_004', name: 'صيانة التكييف', description: 'تبريد مثالي وفحص عام للتكييف', price: 200, icon: 'snow', category: 'تكييف' },
+  { id: 'ac_001', name: 'شحن فريون', description: 'تعبئة فريون أصلي مع كشف التسريبات', price: 300, icon: 'snow-outline', category: 'تكييف' },
+  { id: 'ac_002', name: 'تنظيف التكييف', description: 'غسيل ثلاجة التكييف لضمان الهواء النقي', price: 150, icon: 'color-wand', category: 'تكييف' },
+  { id: 'ac_003', name: 'إصلاح تسريب', description: 'معالجة تسريب الفريون من مواسير التبريد', price: 250, icon: 'water', category: 'تكييف' },
+  { id: 'ac_004', name: 'تغيير كمبروسر', description: 'استبدال كمبروسر التكييف التالف', price: 1000, icon: 'cog', category: 'تكييف' },
+
+  // --- إطارات (Tires) ---
+  { id: 'tir_001', name: 'تغيير كاوتش', description: 'استبدال إطارات السيارة بإطارات جديدة', price: 100, icon: 'disc', category: 'إطارات' },
+  { id: 'tir_002', name: 'إصلاح بنشر', description: 'لحام كاوتش وفحص الثقوب', price: 50, icon: 'build', category: 'إطارات' },
+  { id: 'tir_003', name: 'ترصيص', description: 'ترصيص عجلات لضمان ثبات السيارة', price: 120, icon: 'disc-outline', category: 'إطارات' },
+  { id: 'tir_004', name: 'ضبط زوايا', description: 'تظبيط زوايا العجل لحماية الكاوتش', price: 150, icon: 'crop', category: 'إطارات' },
+
+  // --- طوارئ (Emergency) ---
+  { id: 'emg_001', name: 'ونش إنقاذ (Towing)', description: 'سحب ونقل للسيارة لأقرب ورشة أو للمنزل', price: 250, icon: 'car-sport', category: 'طوارئ' },
+  { id: 'emg_002', name: 'اشتراك بطارية', description: 'شحن البطارية سريع على الطريق', price: 100, icon: 'flash', category: 'طوارئ' },
+  { id: 'emg_003', name: 'تغيير بطارية في الموقع', description: 'توصيل وتركيب بطارية جديدة بمكانك', price: 150, icon: 'battery-full', category: 'طوارئ' },
+  { id: 'emg_004', name: 'تغيير كاوتش في الموقع', description: 'فك الإطار التالف وتركيب الاستبن', price: 100, icon: 'build', category: 'طوارئ' },
+  { id: 'emg_005', name: 'إصلاح بنشر في الموقع', description: 'لحام أو إصلاح سريع للإطار', price: 120, icon: 'hammer', category: 'طوارئ' },
+  { id: 'emg_006', name: 'توصيل بنزين', description: 'توصيل وقود فوري لسيارتك لإنقاذك على الطريق', price: 150, icon: 'color-fill', category: 'طوارئ' },
+  { id: 'emg_007', name: 'فتح باب السيارة', description: 'فتح الأبواب بأمان في حال نسيان المفتاح', price: 200, icon: 'key', category: 'طوارئ' },
+  { id: 'emg_008', name: 'SOS طلب سريع', description: 'استغاثة سريعة وإرسال أقرب منقذ شامل', price: 300, icon: 'alert-circle', category: 'طوارئ' },
+
+  // --- عناية بالسيارة (Car Care) ---
+  { id: 'cc_001', name: 'غسيل سيارات', description: 'غسيل شامل سريع', price: 80, icon: 'water', category: 'عناية بالسيارة' },
+  { id: 'srv_005', name: 'غسيل ذكي بريميوم', description: 'تنظيف شامل للهيكل مع تلميع', price: 150, icon: 'sparkles', category: 'عناية بالسيارة' },
+  { id: 'cc_002', name: 'تلميع (Polishing)', description: 'إزالة الخدوش وتلميع سطح السيارة', price: 300, icon: 'diamond', category: 'عناية بالسيارة' },
+  { id: 'cc_003', name: 'تنظيف داخلي', description: 'غسيل جاف للمقاعد والسجاد', price: 200, icon: 'shirt', category: 'عناية بالسيارة' },
+  { id: 'cc_004', name: 'تنظيف محرك', description: 'غسيل المحرك بمواد آمنة للكهرباء', price: 100, icon: 'car-outline', category: 'عناية بالسيارة' },
+  { id: 'cc_005', name: 'نانو سيراميك', description: 'تركيب طبقة حماية 9H للهيكل', price: 1500, icon: 'shield', category: 'عناية بالسيارة' },
+
+  // --- فحص (Inspection) ---
+  { id: 'ins_001', name: 'فحص شامل للعربية', description: 'مراجعة الميكانيكا والكهرباء بالكامل', price: 250, icon: 'search', category: 'فحص' },
+  { id: 'ins_002', name: 'فحص قبل الشراء', description: 'مهم جداً: بودي، دهان، محرك وشاسيه', price: 500, icon: 'document-text', category: 'فحص' },
+  { id: 'ins_003', name: 'فحص كمبيوتر', description: 'قراءة حساسات السيارة (OBD Scan)', price: 150, icon: 'laptop', category: 'فحص' },
+  { id: 'ins_004', name: 'تقرير حالة السيارة', description: 'كشف مطبوع لتاريخ وحالة السيارة الفنية', price: 100, icon: 'reader', category: 'فحص' },
+
+  // --- متقدمة (Advanced) ---
+  { id: 'adv_001', name: 'تركيب GPS', description: 'أجهزة التتبع الجغرافي وحماية من السرقة', price: 350, icon: 'location', category: 'متقدمة' },
+  { id: 'adv_002', name: 'تركيب Dash Cam', description: 'تركيب كاميرات المراقبة على الطرق بدقة', price: 400, icon: 'videocam', category: 'متقدمة' },
+  { id: 'adv_003', name: 'تعديل برمجة (ECU Tuning)', description: 'برمجة كمبيوتر السيارة وضبط الأداء', price: 1000, icon: 'code-working', category: 'متقدمة' },
+  { id: 'adv_004', name: 'تركيب إنذار', description: 'نظام حماية ضد السطو والسرقة', price: 300, icon: 'notifications', category: 'متقدمة' },
+  { id: 'adv_005', name: 'تركيب حساسات ركن', description: 'تسهيل عملية الركن بكاميرا وحساسات', price: 450, icon: 'wifi', category: 'متقدمة' }
 ];
 
 export const mockWorkshops = [
   {
     id: 'ws_001',
-    name: 'مركز الرياض لصيانة تيسلا',
-    address: 'حي الملقا، طريق الملك فهد الفرعي، الرياض',
+    name: 'مركز النيل لصيانة السيارات',
+    address: 'المعادي، شارع النصر، القاهرة',
     distance: 2.4,
     rating: 4.9,
     reviewCount: 1240,
@@ -108,35 +130,77 @@ export const mockWorkshops = [
     workDays: 'الأحد - الخميس',
     image: null,
     features: ['مركز معتمد', 'مواقف سيارات', 'واي فاي مجاني', 'منطقة انتظار'],
-    location: { lat: 24.7736, lng: 46.6353 },
+    location: { lat: 30.0444, lng: 31.2357 },
   },
   {
     id: 'ws_002',
-    name: 'ورشة العتيبي المتكاملة',
-    address: 'حي الصحافة، الرياض',
-    distance: 4.1,
+    name: 'مركز المهندس المتخصص',
+    address: 'الدقي، ميدان فيني، الجيزة',
+    distance: 3.1,
+    rating: 4.8,
+    reviewCount: 850,
+    isOpen: true,
+    openHours: '09:00 ص - 09:00 م',
+    workDays: 'السبت - الخميس',
+    image: null,
+    features: ['قطع غيار أصلية', 'فحص كمبيوتر', 'ضمان على الخدمة'],
+    location: { lat: 30.0395, lng: 31.2157 },
+  },
+  {
+    id: 'ws_003',
+    name: 'ورشة السلام المتكاملة',
+    address: 'مدينة نصر، مكرم عبيد، القاهرة',
+    distance: 4.5,
     rating: 4.5,
     reviewCount: 320,
     isOpen: false,
     openHours: '09:00 ص - 09:00 م',
     workDays: 'السبت - الخميس',
     image: null,
-    features: ['مركز معتمد', 'مواقف سيارات'],
-    location: { lat: 24.7936, lng: 46.6553 },
+    features: ['مركز معتمد', 'مواقف سيارات', 'منطقة انتظار'],
+    location: { lat: 30.0595, lng: 31.3457 },
   },
   {
-    id: 'ws_003',
-    name: 'مركز أوتو فيكس للمحركات',
-    address: 'حي النرجس، الرياض',
-    distance: 6.8,
-    rating: 4.2,
-    reviewCount: 180,
+    id: 'ws_004',
+    name: 'أوتو سيرفيس الأهرام',
+    address: 'شارع الهرم، الجيزة',
+    distance: 5.2,
+    rating: 4.3,
+    reviewCount: 210,
     isOpen: true,
-    openHours: '08:00 ص - 11:00 م',
+    openHours: '08:30 ص - 10:30 م',
+    workDays: 'يومياً',
+    image: null,
+    features: ['غسيل سيارات', 'تغيير إطارات', 'مقهى'],
+    location: { lat: 29.9895, lng: 31.1457 },
+  },
+  {
+    id: 'ws_005',
+    name: 'مركز النور لكهرباء السيارات',
+    address: 'مصر الجديدة، ميدان تريومف، القاهرة',
+    distance: 6.8,
+    rating: 4.7,
+    reviewCount: 450,
+    isOpen: true,
+    openHours: '10:00 ص - 11:00 م',
     workDays: 'السبت - الخميس',
     image: null,
-    features: ['مواقف سيارات', 'واي فاي مجاني'],
-    location: { lat: 24.8136, lng: 46.6753 },
+    features: ['شحن بطارية', 'تكييف', 'متخصص كهرباء'],
+    location: { lat: 30.1095, lng: 31.3357 },
+  },
+  {
+    id: 'ws_006',
+    name: 'مركز طيبة للميكانيكا',
+    address: 'التجمع الخامس، شارع التسعين، القاهرة',
+    distance: 12.0,
+    rating: 4.6,
+    reviewCount: 156,
+    isOpen: true,
+    openHours: '09:00 ص - 08:00 م',
+    workDays: 'يومياً',
+    image: null,
+    features: ['خدمة VIP', 'سيارة بديلة', 'مواقف خاصة'],
+    location: { lat: 30.0195, lng: 31.4257 },
   },
 ];
 
@@ -166,14 +230,14 @@ export const towTypes = [
 
 export const mockDriver = {
   id: 'driver_001',
-  name: 'أحمد المنصور',
+  name: 'أحمد محمود',
   avatar: null,
   rating: 4.9,
   reviewCount: 120,
   towType: 'ونش هيدروليك',
   plate: 'أ ب ج 1234',
   eta: 7,
-  phone: '+966 55 987 6543',
+  phone: '+20 11 9876 5432',
 };
 
 export const mockOrders = [
@@ -241,7 +305,7 @@ export const mockHistory = [
 
 export const mockTransactions = [
   { id: 't1', title: 'غسيل ذكي بريميوم', date: '15 مايو • 04:30 م', amount: -150.00, icon: 'sparkles', color: '#2DD4BF' },
-  { id: 't2', title: 'إيداع (Apple Pay)', date: '12 مايو • 10:15 ص', amount: 200.00, icon: 'download', color: '#3182CE' },
+  { id: 't2', title: 'إيداع (فوري)', date: '12 مايو • 10:15 ص', amount: 200.00, icon: 'download', color: '#3182CE' },
   { id: 't3', title: 'فحص ضغط الإطارات', date: '10 مايو • 09:00 م', amount: -45.00, icon: 'build', color: '#D69E2E' },
   { id: 't4', title: 'استرداد مبلغ (إلغاء حجز)', date: '08 مايو • 11:20 ص', amount: 75.00, icon: 'refresh', color: '#38A169' },
 ];
@@ -325,7 +389,7 @@ export const quickReplies = [
   'كم ستحتاج من الوقت؟',
 ];
 
-export const serviceCategories = ['الكل', 'ميكانيكا', 'كهرباء', 'فلاتر وزيوت'];
+export const serviceCategories = ['الكل', 'طوارئ', 'صيانة دورية', 'ميكانيكا', 'كهرباء', 'تكييف', 'إطارات', 'فحص', 'عناية بالسيارة', 'متقدمة'];
 
 export const onboardingData = [
   {

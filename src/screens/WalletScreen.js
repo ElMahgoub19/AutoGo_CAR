@@ -28,7 +28,7 @@ const WalletScreen = ({ navigation }) => {
         <Card style={{ marginBottom: spacing.lg }}>
           <Text style={{ ...typography.bodySmall, color: colors.text.secondary, textAlign: 'right' }}>الرصيد الحالي</Text>
           <Text style={{ fontSize: 42, fontWeight: '800', color: colors.text.primary, textAlign: 'right' }}>
-            {user?.walletBalance || 450.00} <Text style={{ ...typography.h4, color: colors.accent.primary }}>ر.س</Text>
+            {user?.walletBalance || 450.00} <Text style={{ ...typography.h4, color: colors.accent.primary }}>ج.م</Text>
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: spacing.xl }}>
             {actions.map((a, i) => (
@@ -52,7 +52,7 @@ const WalletScreen = ({ navigation }) => {
           <Card key={t.id} style={{ marginBottom: spacing.sm }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={{ ...typography.label, color: t.amount > 0 ? colors.status.success : colors.emergency.primary }}>
-                {t.amount > 0 ? '+' : ''}{t.amount.toFixed(2)} ر.س
+                {t.amount > 0 ? '+' : ''}{t.amount.toFixed(2)} ج.م
               </Text>
               <View style={{ flex: 1, alignItems: 'flex-end', marginHorizontal: spacing.md }}>
                 <Text style={{ ...typography.label, color: colors.text.primary }}>{t.title}</Text>

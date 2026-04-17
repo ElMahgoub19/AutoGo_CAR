@@ -21,6 +21,9 @@ const ProfileScreen = ({ navigation }) => {
     { icon: 'card-outline', label: 'طرق الدفع', screen: 'PaymentMethods' },
     { icon: 'time-outline', label: 'سجل الخدمات', screen: 'History' },
     { icon: 'notifications-outline', label: 'الإشعارات', screen: 'Notifications' },
+    { icon: 'settings-outline', label: 'الإعدادات', screen: 'Settings' },
+    { icon: 'help-circle-outline', label: 'مركز المساعدة', screen: 'HelpCenter' },
+    { icon: 'shield-checkmark-outline', label: 'سياسة الخصوصية', screen: 'PrivacyPolicy' },
     { icon: 'help-circle-outline', label: 'مركز الدعم والمساعدة', screen: 'Support' },
     { icon: 'document-text-outline', label: 'الشروط والخصوصية', screen: 'Terms' },
   ];
@@ -35,7 +38,7 @@ const ProfileScreen = ({ navigation }) => {
             <Ionicons name="person" size={40} color={colors.text.secondary} />
           </View>
           <Text style={styles.name}>{user?.name || 'محمد العتيبي'}</Text>
-          <Text style={styles.phone}>{user?.phone || '+966 50 123 4567'}</Text>
+          <Text style={styles.phone}>{user?.phone || '+20 10 1234 5678'}</Text>
 
           {/* Points card */}
           <Card style={styles.pointsCard} variant="accent">

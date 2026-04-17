@@ -1,6 +1,6 @@
 // AutoGo - Onboarding Screen (Design Images 04, 05, 06(2))
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, Dimensions, FlatList, StatusBar, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, FlatList, StatusBar, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
@@ -25,21 +25,11 @@ const OnboardingSlide = ({ item }) => {
     <View style={[styles.slide, { width }]}>
       {/* Illustration placeholder */}
       <View style={styles.illustrationContainer}>
-        <View style={styles.mainIllustration}>
-          <View style={styles.gearBg}>
-            {icons[slideIndex]?.map((iconName, i) => (
-              <View key={i} style={[styles.floatingIcon, {
-                top: [10, 10, 70, 70][i] + '%',
-                left: [10, 70, 5, 75][i] + '%',
-              }]}>
-                <View style={styles.iconBubble}>
-                  <Ionicons name={iconName} size={22} color={colors.accent.primary} />
-                </View>
-              </View>
-            ))}
-            <Ionicons name="car-sport" size={80} color={colors.accent.primary} />
-          </View>
-        </View>
+        <Image 
+          source={require('../../assets/images/onboarding_hero.png')} 
+          style={styles.heroImage}
+          resizeMode="contain"
+        />
       </View>
 
       {/* Text content */}
@@ -163,34 +153,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  mainIllustration: {
-    width: 250,
-    height: 250,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  gearBg: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(45, 212, 191, 0.08)',
-    borderWidth: 2,
-    borderColor: 'rgba(45, 212, 191, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  floatingIcon: {
-    position: 'absolute',
-  },
-  iconBubble: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: 'rgba(45, 212, 191, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(45, 212, 191, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
+  heroImage: {
+    width: 320,
+    height: 380,
   },
   textContainer: {
     flex: 0.3,

@@ -15,7 +15,7 @@ const PaymentMethodsScreen = ({ navigation }) => {
   const methods = [
     { id: 'visa', name: 'Apple Pay', icon: 'logo-apple', desc: 'دفع فوري وآمن' },
     { id: 'instapay', name: 'InstaPay', icon: 'flash', desc: 'تحويل بنكي لحظي' },
-    { id: 'wallet', name: 'المحفظة الرقمية', icon: 'wallet', desc: 'الرصيد: 450.00 ر.س' },
+    { id: 'wallet', name: 'المحفظة الرقمية', icon: 'wallet', desc: 'الرصيد: 450.00 ج.م' },
   ];
 
   return (

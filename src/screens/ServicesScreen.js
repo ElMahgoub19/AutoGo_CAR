@@ -52,7 +52,7 @@ const ServicesScreen = ({ navigation }) => {
                 <Text style={styles.serviceName}>{service.name}</Text>
                 <Text style={styles.serviceDesc} numberOfLines={2}>{service.description}</Text>
                 <View style={styles.priceRow}>
-                  <Text style={styles.priceText}>يبدأ من {service.price} ر.س</Text>
+                  <Text style={styles.priceText}>يبدأ من {service.price} ج.م</Text>
                   <Ionicons name="chevron-back" size={16} color={colors.accent.primary} />
                 </View>
               </View>
@@ -67,13 +67,14 @@ const ServicesScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  categories: { paddingHorizontal: spacing.base, marginBottom: spacing.base, gap: spacing.sm, flexDirection: 'row-reverse' },
+  categories: { paddingHorizontal: spacing.base, marginBottom: spacing.base, flexDirection: 'row-reverse', alignItems: 'center', height: 50 },
   categoryChip: {
-    paddingHorizontal: 18, paddingVertical: 10, borderRadius: borderRadius.full,
+    paddingHorizontal: 16, height: 40, minWidth: 90, borderRadius: borderRadius.full,
     backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center', justifyContent: 'center', marginLeft: spacing.sm,
   },
   categoryChipActive: { backgroundColor: colors.accent.primary, borderColor: colors.accent.primary },
-  categoryText: { ...typography.labelSmall, color: colors.text.secondary },
+  categoryText: { ...typography.label, color: colors.text.secondary },
   categoryTextActive: { color: colors.button.primaryText },
   content: { paddingHorizontal: spacing.base },
   serviceCard: { marginBottom: spacing.md },
