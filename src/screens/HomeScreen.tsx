@@ -1,9 +1,10 @@
 // AutoGo - Home Screen (Design Image 07)
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Dimensions, Image, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
+import { useUser } from '@clerk/clerk-expo';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius, shadows } from '../theme/spacing';
@@ -15,8 +16,21 @@ const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
   const { user } = useSelector((state: RootState) => state.auth);
+  const { user: clerkUser } = useUser();
   const { activeCar, cars } = useSelector((state: RootState) => state.garage);
   const { activeOrders } = useSelector((state: RootState) => state.orders);
+
+  // SOS Pulse Animation
+  const pulseAnim = React.useRef(new Animated.Value(1)).current;
+
+  React.useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1.05, duration: 1200, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 1200, useNativeDriver: true })
+      ])
+    ).start();
+  }, [pulseAnim]);
 
   const services = [
     { id: '1', icon: 'build', label: 'صيانة دورية', screen: 'Services' },
@@ -31,16 +45,29 @@ const HomeScreen = ({ navigation }) => {
     <LinearGradient colors={colors.gradient.primary} style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
+        {/* Premium Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.notifButton}>
             <Ionicons name="notifications-outline" size={24} color={colors.text.primary} />
             <View style={styles.notifBadge} />
           </TouchableOpacity>
-          <View style={styles.headerRight}>
-            <Text style={styles.greeting}>أهلاً، {user?.name?.split(' ')[0] || 'محمد'} 👋</Text>
-            <Text style={styles.greetingSub}>كيف حال سيارتك اليوم؟</Text>
-          </View>
+          
+          <TouchableOpacity 
+            style={styles.userInfoStack} 
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('ProfileTab' as any)}
+          >
+            <View style={styles.headerRight}>
+              <Text style={styles.greeting}>أهلاً، {clerkUser?.firstName || user?.name?.split(' ')[0] || 'ضيف'} 👋</Text>
+              <Text style={styles.greetingSub}>كيف حال سيارتك اليوم؟</Text>
+            </View>
+            <View style={styles.avatarContainer}>
+              <Image 
+                source={{ uri: clerkUser?.imageUrl || `https://ui-avatars.com/api/?name=${clerkUser?.firstName || 'M'}&background=2DD4BF&color=fff&size=256` }} 
+                style={styles.avatar} 
+              />
+            </View>
+          </TouchableOpacity>
         </View>
 
         {/* Active car card */}
@@ -82,27 +109,31 @@ const HomeScreen = ({ navigation }) => {
           </Card>
         )}
 
-        {/* SOS Button */}
-        <TouchableOpacity
-          style={styles.sosButton}
-          activeOpacity={0.8}
-          onPress={() => navigation.navigate('SOS')}
-        >
-          <LinearGradient
-            colors={[colors.emergency.primary, colors.emergency.secondary]}
-            style={styles.sosGradient}
+        {/* Animated SOS Button */}
+        <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+          <TouchableOpacity
+            style={styles.sosButton}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('SOS')}
           >
-            <View style={styles.sosContent}>
-              <View>
-                <Text style={styles.sosTitle}>🚨 طوارئ - طلب ونش</Text>
-                <Text style={styles.sosSub}>سيارتك عطلانة؟ اطلب المساعدة فوراً</Text>
+            <LinearGradient
+              colors={[colors.emergency.primary, '#9B1C1C']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.sosGradient}
+            >
+              <View style={styles.sosContent}>
+                <View>
+                  <Text style={styles.sosTitle}>🚨 طوارئ - طلب ونش</Text>
+                  <Text style={styles.sosSub}>سيارتك عطلانة؟ اطلب المساعدة فوراً</Text>
+                </View>
+                <View style={styles.sosIconContainer}>
+                  <Ionicons name="warning" size={28} color="#FFF" />
+                </View>
               </View>
-              <View style={styles.sosIconContainer}>
-                <Ionicons name="warning" size={28} color="#FFF" />
-              </View>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
 
         {/* Services grid */}
         <View style={styles.sectionHeader}>
@@ -175,9 +206,29 @@ const styles = StyleSheet.create({
     paddingTop: 55,
     paddingBottom: spacing.lg,
   },
-  headerRight: { alignItems: 'flex-end' },
-  greeting: { ...typography.h3, color: colors.text.primary },
-  greetingSub: { ...typography.bodySmall, color: colors.text.secondary, marginTop: 2 },
+  userInfoStack: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
+  },
+  headerRight: { 
+    alignItems: 'flex-end', 
+    marginRight: spacing.sm 
+  },
+  greeting: { ...typography.h3, color: colors.text.primary, fontWeight: '700' },
+  greetingSub: { ...typography.bodySmall, color: colors.accent.primary, marginTop: 2, opacity: 0.9 },
+  avatarContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: colors.accent.primary,
+    overflow: 'hidden',
+    ...shadows.glow,
+  },
+  avatar: {
+    width: '100%',
+    height: '100%',
+  },
   notifButton: {
     width: 44,
     height: 44,
@@ -247,10 +298,16 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     borderRadius: borderRadius.lg,
     overflow: 'hidden',
-    ...shadows.card,
+    shadowColor: colors.emergency.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.6,
+    shadowRadius: 15,
+    elevation: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(229, 62, 62, 0.5)',
   },
   sosGradient: {
-    padding: spacing.lg,
+    padding: spacing.xl,
     borderRadius: borderRadius.lg,
   },
   sosContent: {
