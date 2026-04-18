@@ -149,6 +149,7 @@ export interface OnboardingItem {
   title: string;
   subtitle: string;
   highlightedText: string;
+  image: any;
 }
 
 export interface PaymentMethod {

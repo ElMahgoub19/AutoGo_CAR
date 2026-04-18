@@ -24,18 +24,19 @@ const OnboardingSlide = ({ item }) => {
   const slideIndex = onboardingData.findIndex(d => d.id === item.id);
 
   return (
-    <View style={[styles.slide, { width }]}>
-      {/* Illustration placeholder */}
-      <View style={styles.illustrationContainer}>
-        <Image 
-          source={require('../../assets/images/onboarding_hero.png')} 
-          style={styles.heroImage}
-          resizeMode="contain"
-        />
-      </View>
-
-      {/* Text content */}
-      <View style={styles.textContainer}>
+    <View style={[styles.slide, { width, height }]}>
+      <Image 
+        source={item.image} 
+        style={styles.backgroundImage}
+        resizeMode="cover"
+      />
+      <LinearGradient 
+        colors={['transparent', 'rgba(10, 37, 37, 0.8)', colors.background.primary]} 
+        style={styles.gradientOverlay}
+      />
+      
+      {/* Text content absolute position near bottom */}
+      <View style={styles.contentContainer}>
         <Text style={styles.title}>
           {item.title.split('\n').map((line, idx) => (
             <Text key={idx}>
@@ -83,7 +84,7 @@ const OnboardingScreen = ({ navigation }) => {
   const isLast = currentIndex === onboardingData.length - 1;
 
   return (
-    <LinearGradient colors={colors.gradient.primary} style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
       {/* Skip button */}
@@ -103,35 +104,39 @@ const OnboardingScreen = ({ navigation }) => {
         viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
       />
 
-      {/* Page indicators */}
-      <View style={styles.indicators}>
-        {onboardingData.map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.dot,
-              currentIndex === index ? styles.activeDot : styles.inactiveDot,
-            ]}
-          />
-        ))}
-      </View>
+      {/* Indicators and buttons wrapper */}
+      <View style={styles.bottomWrapper}>
+        <View style={styles.indicators}>
+          {onboardingData.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.dot,
+                currentIndex === index ? styles.activeDot : styles.inactiveDot,
+              ]}
+            />
+          ))}
+        </View>
 
-      {/* Bottom button */}
-      <View style={styles.bottomContainer}>
-        <Button
-          title={isLast ? 'ابدأ الآن' : 'التالي'}
-          onPress={handleNext}
-          icon={isLast ? 'arrow-back' : 'arrow-forward'}
-          iconPosition="left"
-          style={isLast ? { width: '100%' } : { width: '55%', alignSelf: 'flex-start' }}
-        />
+        <View style={styles.bottomContainer}>
+          <Button
+            title={isLast ? 'ابدأ الآن' : 'التالي'}
+            onPress={handleNext}
+            icon={isLast ? 'arrow-back' : 'arrow-forward'}
+            iconPosition="left"
+            style={isLast ? { width: '100%' } : { width: '55%', alignSelf: 'flex-start' }}
+          />
+        </View>
       </View>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { 
+    flex: 1, 
+    backgroundColor: colors.background.primary 
+  },
   skipButton: {
     position: 'absolute',
     top: 55,
@@ -141,28 +146,29 @@ const styles = StyleSheet.create({
   },
   skipText: {
     ...typography.label,
-    color: colors.text.secondary,
+    color: '#FFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: {width: 0, height: 1},
+    textShadowRadius: 3,
   },
   slide: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.xl,
   },
-  illustrationContainer: {
-    flex: 0.55,
-    justifyContent: 'center',
-    alignItems: 'center',
+  backgroundImage: {
+    ...StyleSheet.absoluteFillObject,
     width: '100%',
+    height: '100%',
   },
-  heroImage: {
-    width: 320,
-    height: 380,
+  gradientOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    top: '40%', // Start fading out the image around 40% from top
   },
-  textContainer: {
-    flex: 0.3,
+  contentContainer: {
+    position: 'absolute',
+    bottom: 150, // Keep space for the indicators and button
+    width: '100%',
     alignItems: 'center',
-    paddingHorizontal: spacing.base,
+    paddingHorizontal: spacing.xl,
   },
   title: {
     ...typography.h1,
@@ -179,6 +185,12 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
     textAlign: 'center',
     lineHeight: 24,
+  },
+  bottomWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    paddingBottom: 40,
   },
   indicators: {
     flexDirection: 'row',
@@ -201,7 +213,6 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     paddingHorizontal: spacing.xl,
-    paddingBottom: 40,
     flexDirection: 'row',
     justifyContent: 'center',
   },

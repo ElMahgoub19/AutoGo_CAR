@@ -409,18 +409,21 @@ export const onboardingData: OnboardingItem[] = [
     title: 'حجز سهل\nوخدمات ذكية',
     subtitle: 'احجز موعد صيانة، قارن بين أفضل الورش المعتمدة، وادفع بسهولة وأمان في مكان واحد.',
     highlightedText: 'وخدمات ذكية',
+    image: require('../../assets/images/bg_booking.png'),
   },
   {
     id: '2',
     title: 'خدمة طوارئ سريعة\nوتتبع مباشر',
     subtitle: 'اطلب شاحنة سحب فوراً وتتبعها في الوقت الفعلي حتى وصولها لموقعك بدقة.',
     highlightedText: 'وتتبع مباشر',
+    image: require('../../assets/images/bg_emergency.png'),
   },
   {
     id: '3',
     title: 'كل احتياجات سيارتك\nفي تطبيق واحد',
     subtitle: 'أدر سيارتك، وتتبع الصيانة الدورية، واحصل على مساعدة فورية في أي وقت ومن أي مكان.',
     highlightedText: 'في تطبيق واحد',
+    image: require('../../assets/images/bg_ecosystem.png'),
   },
 ];
 
