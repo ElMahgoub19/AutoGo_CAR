@@ -2,25 +2,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, StatusBar, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useSignIn, useSignUp } from '@clerk/clerk-expo';
-import { useDispatch } from 'react-redux';
-import { setError } from '../store/slices/authSlice';
+import { verifyOTP, sendOTP, setError } from '../store/slices/authSlice';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius } from '../theme/spacing';
 import Header from '../components/Header';
 import Button from '../components/Button';
-import type { RootState } from '../types';
 import { useAppDispatch } from '../hooks';
 
-const OTPScreen = ({ navigation, route }) => {
+const OTPScreen = ({ navigation, route }: any) => {
   const dispatch = useAppDispatch();
-  const { signIn, setActive: setSignInActive, isLoaded: signInLoaded } = useSignIn();
-  const { signUp, setActive: setSignUpActive, isLoaded: signUpLoaded } = useSignUp();
   
   const [isLoading, setIsLoading] = useState(false);
-  const phone = route?.params?.phone || '5X XXX XXXX';
-  const isSignUp = route?.params?.isSignUp || false;
+  const phone = route?.params?.phone || '';
   const [otp, setOtp] = useState(['', '', '', '']);
   const [timer, setTimer] = useState(55);
   const inputs = useRef<any[]>([]);
@@ -32,7 +26,7 @@ const OTPScreen = ({ navigation, route }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleOtpChange = (value, index) => {
+  const handleOtpChange = (value: string, index: number) => {
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -47,35 +41,36 @@ const OTPScreen = ({ navigation, route }) => {
 
   const handleVerify = async () => {
     const code = otp.join('');
+    console.log(`[AutoGo Debug] Attempting OTP verification for: ${phone}, code: ${code}`);
+    
     if (code.length === 4) {
-      if (!signInLoaded || !signUpLoaded) return;
       try {
         setIsLoading(true);
-        if (isSignUp) {
-          const completeSignUp = await signUp.attemptPhoneNumberVerification({ code });
-          if (completeSignUp.status === 'complete') {
-            await setSignUpActive({ session: completeSignUp.createdSessionId });
-            navigation.replace('ProfileSetup');
-          }
-        } else {
-          const completeSignIn = await signIn.attemptFirstFactor({ strategy: 'phone_code', code });
-          if (completeSignIn.status === 'complete') {
-            await setSignInActive({ session: completeSignIn.createdSessionId });
-            // Let the AppNavigator handle redirecting based on auth state, or we can push to ProfileSetup if needed
-            // Home screen will be shown automatically since isSignedIn becomes true
-            navigation.replace('ProfileSetup'); // Fallback in case they want to complete profile setup again
-          }
-        }
+        console.log(`[AutoGo Debug] Dispatching verifyOTP...`);
+        const result = await dispatch(verifyOTP({ phone, otp: code })).unwrap();
+        console.log(`[AutoGo Debug] verifyOTP success:`, result);
+        
+        // Even though AppNavigator might swap stacks, we can add a timeout or manual navigate
+        // but let's see if the logs show we completed this step.
       } catch (err: any) {
-        dispatch(setError(err.errors?.[0]?.message || 'الرمز غير صحيح'));
-        console.error(JSON.stringify(err, null, 2));
+        console.error(`[AutoGo Debug] OTP Verification error:`, err);
+        dispatch(setError(err || 'الرمز غير صحيح'));
       } finally {
         setIsLoading(false);
       }
     }
   };
 
-  const formatTime = (seconds) => {
+  const handleResend = async () => {
+    try {
+      await dispatch(sendOTP(phone)).unwrap();
+      setTimer(55);
+    } catch (err: any) {
+      dispatch(setError(err || 'فشل إعادة إرسال الرمز'));
+    }
+  };
+
+  const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
     const s = (seconds % 60).toString().padStart(2, '0');
     return `${m}:${s}`;
@@ -89,7 +84,7 @@ const OTPScreen = ({ navigation, route }) => {
       <View style={styles.content}>
         <Text style={styles.title}>رمز التحقق</Text>
         <Text style={styles.subtitle}>أدخل الرمز المكون من 4 أرقام المرسل إلى الرقم</Text>
-        <Text style={styles.phone}>+20 {phone}</Text>
+        <Text style={styles.phone}>{phone}</Text>
 
         {/* OTP Inputs */}
         <View style={styles.otpContainer}>
@@ -119,7 +114,7 @@ const OTPScreen = ({ navigation, route }) => {
         <View style={styles.resendContainer}>
           <Text style={styles.resendText}>لم يصلك الرمز؟</Text>
           <View style={styles.resendRow}>
-            <TouchableOpacity disabled={timer > 0} onPress={() => setTimer(55)}>
+            <TouchableOpacity disabled={timer > 0} onPress={handleResend}>
               <Text style={[styles.resendLink, timer > 0 && styles.resendDisabled]}>
                 إعادة إرسال الرمز
               </Text>

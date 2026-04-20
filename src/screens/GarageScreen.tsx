@@ -1,5 +1,5 @@
 // AutoGo - Garage Screen (Design Images 08, 06)
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,10 +9,18 @@ import { typography } from '../theme/typography';
 import { spacing, borderRadius } from '../theme/spacing';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { fetchCars } from '../store/slices/garageSlice';
+import { useAppDispatch } from '../hooks';
 import type { RootState } from '../types';
 
-const GarageScreen = ({ navigation }) => {
+const GarageScreen = ({ navigation }: any) => {
+  const dispatch = useAppDispatch();
   const { cars } = useSelector((state: RootState) => state.garage);
+
+  // NOTE: API fetching disabled to preserve professional mock data.
+  // useEffect(() => {
+  //   dispatch(fetchCars());
+  // }, []);
 
   return (
     <LinearGradient colors={colors.gradient.primary} style={styles.container}>

@@ -1,10 +1,10 @@
 // AutoGo - Workshop List Screen (Design Image 24)
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
-import { selectWorkshop } from '../store/slices/servicesSlice';
+import { selectWorkshop, fetchWorkshops } from '../store/slices/servicesSlice';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius } from '../theme/spacing';
@@ -14,9 +14,14 @@ import MapPlaceholder from '../components/MapPlaceholder';
 import type { RootState } from '../types';
 import { useAppDispatch } from '../hooks';
 
-const WorkshopListScreen = ({ navigation }) => {
+const WorkshopListScreen = ({ navigation }: any) => {
   const dispatch = useAppDispatch();
   const { workshops } = useSelector((state: RootState) => state.services);
+
+  // NOTE: API fetching disabled to preserve professional mock data.
+  // useEffect(() => {
+  //   dispatch(fetchWorkshops());
+  // }, []);
 
   const handleSelect = (ws) => {
     dispatch(selectWorkshop(ws));

@@ -3,11 +3,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useSignUp, useOAuth } from '@clerk/clerk-expo';
-import * as WebBrowser from 'expo-web-browser';
-import * as Linking from 'expo-linking';
-import { useDispatch } from 'react-redux';
-import { setLoading, setError } from '../store/slices/authSlice';
+import { sendOTP, setError } from '../store/slices/authSlice';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius } from '../theme/spacing';
@@ -17,12 +13,8 @@ import type { RootState } from '../types';
 import { useAppDispatch } from '../hooks';
 import { formatEgyptianPhone, isValidEgyptianPhone } from '../utils/phone';
 
-const SignUpScreen = ({ navigation }) => {
+const SignUpScreen = ({ navigation }: any) => {
   const dispatch = useAppDispatch();
-  const { signUp, isLoaded } = useSignUp();
-  
-  const { startOAuthFlow: startGoogleFlow } = useOAuth({ strategy: "oauth_google" });
-  const { startOAuthFlow: startAppleFlow } = useOAuth({ strategy: "oauth_apple" });
 
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState('');
@@ -33,51 +25,14 @@ const SignUpScreen = ({ navigation }) => {
   const isValid = name.length >= 2 && isValidEgyptianPhone(phone) && agreed;
 
   const handleSignUp = async () => {
-    if (!isLoaded || !isValid) return;
-    
+    if (!isValid) return;
     const formattedPhone = formatEgyptianPhone(phone);
-    console.log(`[AutoGo Auth] Signup attempt raw phone: ${phone}, formatted phone: ${formattedPhone}`);
-    
     try {
       setIsLoading(true);
-      
-      console.log(`[AutoGo Auth] Sending signUp with phoneNumber: ${formattedPhone}`);
-
-      // Start sign up
-      await signUp.create({
-        phoneNumber: formattedPhone,
-        firstName: name,
-        emailAddress: email || undefined,
-      });
-
-      // Prepare phone verification
-      await signUp.preparePhoneNumberVerification({ strategy: 'phone_code' });
-      
-      console.log(`[AutoGo Auth] Sent OTP to ${formattedPhone}`);
+      await dispatch(sendOTP(formattedPhone)).unwrap();
       navigation.navigate('OTP', { phone: formattedPhone, isSignUp: true });
     } catch (err: any) {
-      dispatch(setError(err.errors?.[0]?.message || 'حدث خطأ في إنشاء الحساب'));
-      console.error(JSON.stringify(err, null, 2));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleOAuth = async (strategy: 'google' | 'apple') => {
-    if (!agreed) return;
-    try {
-      setIsLoading(true);
-      const startFlow = strategy === 'google' ? startGoogleFlow : startAppleFlow;
-      const { createdSessionId, setActive: setOAuthActive } = await startFlow({
-        redirectUrl: Linking.createURL('/oauth-redirect', { scheme: 'autogo' }),
-      });
-
-      if (createdSessionId && setOAuthActive) {
-        await setOAuthActive({ session: createdSessionId });
-      }
-    } catch (err: any) {
-      dispatch(setError(err.errors?.[0]?.message || 'حدث خطأ في التسجيل'));
-      console.error(JSON.stringify(err, null, 2));
+      dispatch(setError(err || 'حدث خطأ في إنشاء الحساب'));
     } finally {
       setIsLoading(false);
     }
@@ -156,32 +111,7 @@ const SignUpScreen = ({ navigation }) => {
             style={{ marginTop: spacing.lg }}
           />
 
-          {/* Divider */}
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>أو</Text>
-            <View style={styles.dividerLine} />
-          </View>
 
-          {/* Social sign up */}
-          <Button
-            title="التسجيل باستخدام جوجل"
-            onPress={() => handleOAuth('google')}
-            variant="secondary"
-            icon="logo-google"
-            iconPosition="right"
-            style={styles.socialButton}
-            disabled={!agreed || isLoading}
-          />
-          <Button
-            title="التسجيل باستخدام أبل"
-            onPress={() => handleOAuth('apple')}
-            variant="secondary"
-            icon="logo-apple"
-            iconPosition="right"
-            style={styles.socialButton}
-            disabled={!agreed || isLoading}
-          />
 
           {/* Login link */}
           <View style={styles.loginContainer}>

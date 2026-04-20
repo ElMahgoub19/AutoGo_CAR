@@ -3,11 +3,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, StatusBar, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { useSignIn, useOAuth } from '@clerk/clerk-expo';
-import * as WebBrowser from 'expo-web-browser';
-import * as Linking from 'expo-linking';
-import { useDispatch } from 'react-redux';
-import { setLoading, setError } from '../store/slices/authSlice';
+import { sendOTP, setError } from '../store/slices/authSlice';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius } from '../theme/spacing';
@@ -16,89 +12,33 @@ import Input from '../components/Input';
 import { useAppDispatch } from '../hooks';
 import { formatEgyptianPhone, isValidEgyptianPhone } from '../utils/phone';
 
-// Warm up the android browser to improve UX
-WebBrowser.maybeCompleteAuthSession();
-
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation }: any) => {
   const dispatch = useAppDispatch();
-  const { signIn, setActive, isLoaded } = useSignIn();
-  
-  const { startOAuthFlow: startGoogleFlow } = useOAuth({ strategy: "oauth_google" });
-  const { startOAuthFlow: startAppleFlow } = useOAuth({ strategy: "oauth_apple" });
-
   const [isLoading, setIsLoading] = useState(false);
   const [phone, setPhone] = useState('');
   const [agreed, setAgreed] = useState(false);
 
   const handleLogin = async () => {
-    if (!isLoaded) return;
-    
     const formattedPhone = formatEgyptianPhone(phone);
-    console.log(`[AutoGo Auth] Login attempt raw phone: ${phone}, formatted phone: ${formattedPhone}`);
+    console.log(`[AutoGo Debug] Attempting login with: ${formattedPhone}`);
     
     if (isValidEgyptianPhone(phone) && agreed) {
       try {
         setIsLoading(true);
-        console.log(`[AutoGo Auth] Sending signIn with identifier: ${formattedPhone}`);
+        console.log(`[AutoGo Debug] Dispatching sendOTP...`);
+        const result = await dispatch(sendOTP(formattedPhone)).unwrap();
+        console.log(`[AutoGo Debug] sendOTP success:`, result);
         
-        // Start the sign-in process using the phone number
-        const { supportedFirstFactors } = await signIn.create({
-          identifier: formattedPhone,
-          strategy: 'phone_code', // Explicitly declare we are using phone code strategy
-        });
-
-        // Find the phone code factor
-        const isPhoneCodeFactor = (factor: any) => factor.strategy === 'phone_code';
-        const phoneCodeFactor = supportedFirstFactors?.find(isPhoneCodeFactor) as any;
-
-        if (phoneCodeFactor) {
-          // Send the OTP
-          await signIn.prepareFirstFactor({
-            strategy: 'phone_code',
-            phoneNumberId: phoneCodeFactor.phoneNumberId,
-          });
-          
-          console.log(`[AutoGo Auth] Sent OTP to ${formattedPhone}`);
-          navigation.navigate('OTP', { phone: formattedPhone, isSignUp: false });
-        } else {
-            dispatch(setError('لا يمكن إرسال الرمز إلى هذا الرقم.'));
-        }
+        console.log(`[AutoGo Debug] Navigating to OTP screen...`);
+        navigation.navigate('OTP', { phone: formattedPhone, isSignUp: false });
       } catch (err: any) {
-        console.error('[AutoGo Auth] Clerk SignIn Error:', JSON.stringify(err, null, 2));
-        
-        const clerkError = err.errors?.[0];
-        if (clerkError?.code === 'form_identifier_not_found') {
-          dispatch(setError('هذا الرقم غير مسجل، يرجى إنشاء حساب جديد.'));
-        } else if (clerkError?.code === 'form_identifier_invalid' || clerkError?.message?.includes('invalid')) {
-          dispatch(setError('رقم الهاتف غير صالح أو أن تسجيل الدخول برقم الهاتف غير مفعل.'));
-        } else {
-          dispatch(setError(clerkError?.message || 'حدث خطأ في تسجيل الدخول'));
-        }
+        console.error(`[AutoGo Debug] Login error:`, err);
+        dispatch(setError(err || 'حدث خطأ في إرسال رمز التحقق'));
       } finally {
         setIsLoading(false);
       }
-    }
-  };
-
-  const handleOAuth = async (strategy: 'google' | 'apple') => {
-    if (!agreed) return;
-    try {
-      setIsLoading(true);
-      const startFlow = strategy === 'google' ? startGoogleFlow : startAppleFlow;
-      const { createdSessionId, setActive: setOAuthActive } = await startFlow({
-        redirectUrl: Linking.createURL('/oauth-redirect', { scheme: 'autogo' }),
-      });
-
-      if (createdSessionId && setOAuthActive) {
-        await setOAuthActive({ session: createdSessionId });
-      } else {
-        // Use signIn or signUp returned from startOAuthFlow for next steps if needed
-      }
-    } catch (err: any) {
-      dispatch(setError(err.errors?.[0]?.message || 'حدث خطأ في تسجيل الدخول'));
-      console.error(JSON.stringify(err, null, 2));
-    } finally {
-      setIsLoading(false);
+    } else {
+      console.warn(`[AutoGo Debug] Validation failed: isValid=${isValidEgyptianPhone(phone)}, agreed=${agreed}`);
     }
   };
 
@@ -160,33 +100,6 @@ const LoginScreen = ({ navigation }) => {
               style={{ marginTop: spacing.base }}
             />
           </View>
-
-          {/* Divider */}
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>أو المتابعة عبر</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          {/* Social login */}
-          <Button
-            title="المتابعة باستخدام جوجل"
-            onPress={() => handleOAuth('google')}
-            variant="secondary"
-            icon="logo-google"
-            iconPosition="right"
-            style={styles.socialButton}
-            disabled={!agreed || isLoading}
-          />
-          <Button
-            title="المتابعة باستخدام أبل"
-            onPress={() => handleOAuth('apple')}
-            variant="secondary"
-            icon="logo-apple"
-            iconPosition="right"
-            style={styles.socialButton}
-            disabled={!agreed || isLoading}
-          />
 
           {/* Terms */}
           <View style={styles.termsContainer}>
@@ -267,18 +180,6 @@ const styles = StyleSheet.create({
     color: colors.accent.primary, 
     textDecorationLine: 'underline' 
   },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: spacing.xl,
-  },
-  dividerLine: { flex: 1, height: 1, backgroundColor: colors.divider },
-  dividerText: {
-    ...typography.bodySmall,
-    color: colors.text.tertiary,
-    marginHorizontal: spacing.base,
-  },
-  socialButton: { marginBottom: spacing.md },
   termsContainer: {
     marginTop: 'auto',
     paddingBottom: spacing.xxl,

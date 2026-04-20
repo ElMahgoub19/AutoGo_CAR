@@ -5,11 +5,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '@clerk/clerk-expo';
+import { useSelector } from 'react-redux';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { borderRadius } from '../theme/spacing';
-import type { RootStackParamList, BottomTabParamList } from '../types';
+import type { RootStackParamList, BottomTabParamList, RootState } from '../types';
 
 // Auth screens
 import SplashScreen from '../screens/SplashScreen';
@@ -106,20 +106,16 @@ const MainTabs: React.FC = () => {
 
 // Root Navigator
 const AppNavigator: React.FC = () => {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth);
   
-  if (!isLoaded) {
-    return (
-      <View style={{ flex: 1, backgroundColor: colors.background.primary, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={colors.accent.primary} />
-      </View>
-    );
-  }
+  // We removed the global isLoading spinner that was based on state.auth.isLoading
+  // because it causes screens to unmount during auth requests (like sendOTP).
+  // Each screen now handles its own loading state for better UX.
 
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_left' }}>
-        {!isSignedIn ? (
+        {!isAuthenticated ? (
           // Auth flow
           <>
             <Stack.Screen name="Splash" component={SplashScreen} options={{ animation: 'fade' }} />

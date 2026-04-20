@@ -4,8 +4,7 @@ import { View, Text, StyleSheet, StatusBar, TouchableOpacity } from 'react-nativ
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
-import { setProfileComplete } from '../store/slices/authSlice';
-import { useUser } from '@clerk/clerk-expo';
+import { setProfileComplete, updateProfileAsync } from '../store/slices/authSlice';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius } from '../theme/spacing';
@@ -15,26 +14,19 @@ import Input from '../components/Input';
 import type { RootState } from '../types';
 import { useAppDispatch } from '../hooks';
 
-const ProfileSetupScreen = ({ navigation }) => {
+const ProfileSetupScreen = ({ navigation }: any) => {
   const dispatch = useAppDispatch();
-  const { user } = useUser();
   const [name, setName] = useState('');
   const [city, setCity] = useState('');
 
   const handleSubmit = async () => {
-    const finalName = name || 'محمد العتيبي';
-    if (user) {
-      try {
-        await user.update({ firstName: finalName });
-      } catch (err) {
-        console.error('Failed to update Clerk user:', err);
-      }
-    }
-    dispatch(setProfileComplete({ name: finalName, city: city || 'الرياض' }));
+    const finalName = name || 'مستخدم';
+    dispatch(updateProfileAsync({ name: finalName, city: city || 'القاهرة' }));
+    dispatch(setProfileComplete({ name: finalName, city: city || 'القاهرة' }));
   };
 
   const handleSkip = () => {
-    dispatch(setProfileComplete({ name: user?.firstName || 'مستخدم', city: 'الرياض' }));
+    dispatch(setProfileComplete({ name: 'مستخدم', city: 'القاهرة' }));
   };
 
   return (

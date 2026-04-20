@@ -1,24 +1,41 @@
 // AutoGo - Home Screen (Design Image 07)
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Dimensions, Image, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
-import { useUser } from '@clerk/clerk-expo';
+import { useAppDispatch } from '../hooks';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius, shadows } from '../theme/spacing';
 import Card from '../components/Card';
 import Button from '../components/Button';
+import { fetchCars } from '../store/slices/garageSlice';
+import { fetchActiveOrders } from '../store/slices/ordersSlice';
+import { fetchProfile } from '../store/slices/authSlice';
 import type { RootState } from '../types';
 
 const { width } = Dimensions.get('window');
 
-const HomeScreen = ({ navigation }) => {
-  const { user } = useSelector((state: RootState) => state.auth);
-  const { user: clerkUser } = useUser();
+const HomeScreen = ({ navigation }: any) => {
+  const dispatch = useAppDispatch();
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const { activeCar, cars } = useSelector((state: RootState) => state.garage);
   const { activeOrders } = useSelector((state: RootState) => state.orders);
+
+  // Safe user formatting
+  const firstName = user?.name ? user.name.split(' ')[0] : 'ضيف';
+  const userAvatar = user?.avatar || `https://ui-avatars.com/api/?name=${user?.name || 'M'}&background=2DD4BF&color=fff&size=256`;
+
+  // NOTE: API fetching disabled to preserve professional mock data.
+  // Re-enable when backend has full production data.
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     dispatch(fetchCars());
+  //     dispatch(fetchActiveOrders());
+  //     dispatch(fetchProfile());
+  //   }
+  // }, [isAuthenticated]);
 
   // SOS Pulse Animation
   const pulseAnim = React.useRef(new Animated.Value(1)).current;
@@ -58,12 +75,12 @@ const HomeScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('ProfileTab' as any)}
           >
             <View style={styles.headerRight}>
-              <Text style={styles.greeting}>أهلاً، {clerkUser?.firstName || user?.name?.split(' ')[0] || 'ضيف'} 👋</Text>
+              <Text style={styles.greeting}>أهلاً، {firstName} 👋</Text>
               <Text style={styles.greetingSub}>كيف حال سيارتك اليوم؟</Text>
             </View>
             <View style={styles.avatarContainer}>
               <Image 
-                source={{ uri: clerkUser?.imageUrl || `https://ui-avatars.com/api/?name=${clerkUser?.firstName || 'M'}&background=2DD4BF&color=fff&size=256` }} 
+                source={{ uri: userAvatar }} 
                 style={styles.avatar} 
               />
             </View>
@@ -89,7 +106,7 @@ const HomeScreen = ({ navigation }) => {
                   </View>
                   <View style={styles.carStat}>
                     <Ionicons name="calendar-outline" size={14} color={colors.text.tertiary} />
-                    <Text style={styles.carStatText}>{activeCar.year}</Text>
+                    <Text style={styles.carStatText}>{activeCar?.year || '-'}</Text>
                   </View>
                 </View>
               </View>

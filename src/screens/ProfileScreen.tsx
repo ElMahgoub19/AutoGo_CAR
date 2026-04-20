@@ -4,8 +4,7 @@ import { View, Text, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
-import { useClerk, useUser } from '@clerk/clerk-expo';
-import { logout } from '../store/slices/authSlice';
+import { logoutAsync } from '../store/slices/authSlice';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius } from '../theme/spacing';
@@ -13,17 +12,15 @@ import Card from '../components/Card';
 import type { RootState } from '../types';
 import { useAppDispatch } from '../hooks';
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = ({ navigation }: any) => {
   const dispatch = useAppDispatch();
-  const { signOut } = useClerk();
-  const { user: clerkUser } = useUser();
   const { user } = useSelector((state: RootState) => state.auth);
 
   const displayUser = {
-    name: clerkUser?.firstName || user?.name || 'محمد العتيبي',
-    phone: clerkUser?.primaryPhoneNumber?.phoneNumber || user?.phone || '+20 10 1234 5678',
-    points: user?.points || 2450,
-    membershipType: user?.membershipType || 'بريميوم',
+    name: user?.name || 'ضيف',
+    phone: user?.phone || '',
+    points: user?.points || 0,
+    membershipType: user?.membershipType || 'عادي',
   };
 
   const menuItems = [
@@ -82,9 +79,8 @@ const ProfileScreen = ({ navigation }) => {
         ))}
 
         {/* Logout */}
-        <TouchableOpacity style={styles.logoutBtn} onPress={async () => {
-          await signOut();
-          dispatch(logout());
+        <TouchableOpacity style={styles.logoutBtn} onPress={() => {
+          dispatch(logoutAsync());
         }}>
           <Text style={styles.logoutText}>تسجيل الخروج</Text>
           <Ionicons name="log-out-outline" size={20} color={colors.emergency.primary} />

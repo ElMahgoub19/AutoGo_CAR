@@ -1,10 +1,10 @@
 // AutoGo - Services Screen (Design Image 23)
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
-import { selectService, setCategory } from '../store/slices/servicesSlice';
+import { selectService, setCategory, fetchServices } from '../store/slices/servicesSlice';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius } from '../theme/spacing';
@@ -14,11 +14,16 @@ import { serviceCategories } from '../data/mockData';
 import type { RootState } from '../types';
 import { useAppDispatch } from '../hooks';
 
-const ServicesScreen = ({ navigation }) => {
+const ServicesScreen = ({ navigation }: any) => {
   const dispatch = useAppDispatch();
   const { services, activeCategory } = useSelector((state: RootState) => state.services);
 
-  const filtered = activeCategory === 'الكل' ? services : services.filter(s => s.category === activeCategory);
+  // NOTE: API fetching disabled to preserve professional mock data.
+  // useEffect(() => {
+  //   dispatch(fetchServices());
+  // }, []);
+
+  const filtered = activeCategory === 'الكل' ? services : services.filter((s: any) => s.category?.name === activeCategory || s.category === activeCategory);
 
   const handleSelectService = (service) => {
     dispatch(selectService(service));

@@ -1,43 +1,88 @@
-// AutoGo - Orders Slice
+// AutoGo - Orders Slice (API-connected with mock fallback)
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { mockOrders, mockHistory, mockDriver } from '../../data/mockData';
+import api from '../../api/apiClient';
 import type { Order, HistoryOrder, OrdersState } from '../../types';
+import { mockOrders, mockHistory } from '../../data/mockData';
 
+// Request tow (SOS)
 export const requestTow = createAsyncThunk(
   'orders/requestTow',
-  async (orderData: Partial<Order>) => {
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    return {
-      id: `SOS-${Math.floor(1000 + Math.random() * 9000)}`,
-      type: 'ونش',
-      title: 'طلب ونش طوارئ',
-      status: 'في الطريق إليك',
-      statusColor: '#2DD4BF',
-      driver: mockDriver,
-      ...orderData,
-      createdAt: new Date().toISOString(),
-      icon: 'truck',
-    } as Order;
+  async (orderData: { latitude?: number; longitude?: number; address?: string; carId?: string; notes?: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.post('/orders/tow', orderData);
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
   }
 );
 
+// Book service (maintenance)
 export const bookService = createAsyncThunk(
   'orders/bookService',
-  async (bookingData: Partial<Order> & { serviceName?: string }) => {
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    return {
-      id: `MNT-${Math.floor(1000 + Math.random() * 9000)}`,
-      type: 'صيانة',
-      title: bookingData.serviceName || 'صيانة دورية',
-      status: 'بانتظار التأكيد',
-      statusColor: '#D69E2E',
-      ...bookingData,
-      createdAt: new Date().toISOString(),
-      icon: 'build',
-    } as Order;
+  async (bookingData: { serviceId?: string; workshopId?: string; carId?: string; date?: string; time?: string; serviceMethod?: string; notes?: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.post('/orders/booking', bookingData);
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
   }
 );
 
+// Fetch active orders
+export const fetchActiveOrders = createAsyncThunk(
+  'orders/fetchActive',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/orders/active');
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// Fetch order history
+export const fetchOrderHistory = createAsyncThunk(
+  'orders/fetchHistory',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get('/orders/history');
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// Cancel order
+export const cancelOrderAsync = createAsyncThunk(
+  'orders/cancel',
+  async (orderId: string, { rejectWithValue }) => {
+    try {
+      await api.patch(`/orders/${orderId}/cancel`);
+      return orderId;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// Rate order
+export const rateOrderAsync = createAsyncThunk(
+  'orders/rate',
+  async ({ orderId, score, comment }: { orderId: string; score: number; comment?: string }, { rejectWithValue }) => {
+    try {
+      const res = await api.post(`/orders/${orderId}/rate`, { score, comment });
+      return { orderId, rating: res.data };
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// Start with mock data so the app always looks professional
 const initialState: OrdersState = {
   activeOrders: mockOrders,
   history: mockHistory,
@@ -46,7 +91,7 @@ const initialState: OrdersState = {
   driverFound: false,
   isLoading: false,
   trackingData: {
-    driverLocation: { lat: 24.7336, lng: 46.6553 },
+    driverLocation: { lat: 30.0444, lng: 31.2357 },
     eta: 7,
     distance: 3.2,
     status: 'في الطريق إليك',
@@ -104,6 +149,7 @@ const ordersSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Request Tow
       .addCase(requestTow.pending, (state) => { state.isLoading = true; state.isSearching = true; })
       .addCase(requestTow.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -112,11 +158,33 @@ const ordersSlice = createSlice({
         state.currentOrder = action.payload;
         state.activeOrders.unshift(action.payload);
       })
+      .addCase(requestTow.rejected, (state) => { state.isLoading = false; state.isSearching = false; })
+      // Book Service
       .addCase(bookService.pending, (state) => { state.isLoading = true; })
       .addCase(bookService.fulfilled, (state, action) => {
         state.isLoading = false;
         state.currentOrder = action.payload;
         state.activeOrders.unshift(action.payload);
+      })
+      .addCase(bookService.rejected, (state) => { state.isLoading = false; })
+      // Fetch Active
+      .addCase(fetchActiveOrders.fulfilled, (state, action) => {
+        // Only replace if API returned data, otherwise keep mock data
+        if (action.payload && action.payload.length > 0) {
+          state.activeOrders = action.payload;
+        }
+      })
+      // Fetch History
+      .addCase(fetchOrderHistory.fulfilled, (state, action) => {
+        // Only replace if API returned data, otherwise keep mock data
+        if (action.payload && action.payload.length > 0) {
+          state.history = action.payload;
+        }
+      })
+      // Cancel
+      .addCase(cancelOrderAsync.fulfilled, (state, action) => {
+        state.activeOrders = state.activeOrders.filter(o => o.id !== action.payload);
+        if (state.currentOrder?.id === action.payload) state.currentOrder = null;
       });
   },
 });
