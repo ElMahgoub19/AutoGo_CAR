@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
 
-import { requestTow } from '../store/slices/ordersSlice';
+import { fetchActiveOrders, requestTow } from '../store/slices/ordersSlice';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius } from '../theme/spacing';
@@ -18,11 +19,19 @@ import { useAppDispatch } from '../hooks';
 const PaymentScreen = ({ navigation, route }) => {
   const dispatch = useAppDispatch();
   const price = route?.params?.price || 150;
+  const { activeCar } = useSelector((state: RootState) => state.garage);
   const [selectedMethod, setSelectedMethod] = useState('apple_pay');
 
   const handlePay = async () => {
     if (route?.params?.type === 'tow') {
-      dispatch(requestTow({ price } as any));
+      await dispatch(requestTow({ 
+        price, 
+        carId: activeCar?.id,
+        latitude: activeCar?.lastLocation?.lat || 30.044,
+        longitude: activeCar?.lastLocation?.lng || 31.235,
+        address: activeCar?.lastLocation?.address || 'تم تحديد الموقع تلقائياً'
+      } as any));
+      dispatch(fetchActiveOrders());
       navigation.navigate('Searching');
     } else {
       navigation.goBack();

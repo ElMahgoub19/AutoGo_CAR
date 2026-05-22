@@ -22,6 +22,15 @@ class AuthController {
     }
   }
 
+  async clerkSync(req, res, next) {
+    try {
+      const result = await authService.clerkSync(req.body);
+      return success(res, result, 'تم المزامنة بنجاح');
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async signUp(req, res, next) {
     try {
       const result = await authService.signUp(req.body);

@@ -22,6 +22,8 @@ const updateCarSchema = z.object({
     color: z.string().optional(),
     mileage: z.number().int().min(0).optional(),
     status: z.string().optional(),
+    imageUrl: z.string().optional(),
+    isActive: z.boolean().optional(),
   }),
 });
 

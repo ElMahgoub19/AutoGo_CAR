@@ -30,6 +30,11 @@ class UsersService {
   }
 
   async updateProfile(userId, data) {
+    // Handle empty string for phone to avoid unique constraint violations
+    if (data.phone === "") {
+      data.phone = null;
+    }
+
     // If updating email, check uniqueness
     if (data.email) {
       const existing = await prisma.user.findFirst({
@@ -38,12 +43,21 @@ class UsersService {
       if (existing) throw new AppError('البريد الإلكتروني مسجل مسبقاً', 409);
     }
 
+    // If updating phone, check uniqueness
+    if (data.phone) {
+      const existing = await prisma.user.findFirst({
+        where: { phone: data.phone, id: { not: userId } },
+      });
+      if (existing) throw new AppError('رقم الهاتف مسجل مسبقاً', 409);
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data,
       select: {
         id: true,
         name: true,
+        phone: true,
         email: true,
         city: true,
       },

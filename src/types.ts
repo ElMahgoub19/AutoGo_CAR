@@ -3,6 +3,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { useDispatch, useSelector } from 'react-redux';
 import type { store } from './store';
+import type { AddressState } from './store/slices/addressSlice';
 
 // ─── Data Models ───────────────────────────────────────────
 
@@ -13,6 +14,7 @@ export interface User {
   email: string;
   city: string;
   avatar: string | null;
+  avatarUrl?: string | null;
   membershipType: string;
   points: number;
   walletBalance: number;
@@ -41,6 +43,7 @@ export interface Car {
   status: string;
   color: string;
   image: string | null;
+  imageUrl?: string | null;
   lastLocation: CarLocation | null;
   reminders: CarReminder[];
 }
@@ -65,6 +68,7 @@ export interface Workshop {
   openHours: string;
   workDays: string;
   image: string | null;
+  imageUrl?: string | null;
   features: string[];
   location: { lat: number; lng: number };
 }
@@ -222,6 +226,7 @@ export interface RootState {
   garage: GarageState;
   orders: OrdersState;
   services: ServicesState;
+  address: AddressState;
 }
 
 // ─── Store Types ───────────────────────────────────────────
@@ -355,6 +360,12 @@ export interface MapPlaceholderProps {
   height?: number;
   showPin?: boolean;
   label?: string;
+  region?: {
+    latitude: number;
+    longitude: number;
+    latitudeDelta?: number;
+    longitudeDelta?: number;
+  };
 }
 
 export interface StarRatingProps {

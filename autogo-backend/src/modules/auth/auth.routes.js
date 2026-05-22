@@ -12,5 +12,6 @@ router.post('/signup', validate(signUpSchema), authController.signUp);
 router.post('/reset-password', validate(resetPasswordSchema), authController.resetPassword);
 router.post('/refresh-token', authController.refreshToken);
 router.post('/logout', authController.logout);
+router.post('/clerk-sync', authController.clerkSync);
 
 module.exports = router;

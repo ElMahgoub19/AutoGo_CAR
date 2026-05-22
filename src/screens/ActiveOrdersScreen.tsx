@@ -22,7 +22,7 @@ const ActiveOrdersScreen = ({ navigation }) => {
   return (
     <LinearGradient colors={colors.gradient.primary} style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
-      <Header title="الطلبات النشطة" onBack={() => navigation.navigate('HomeTab')} />
+      <Header title="الطلبات النشطة" onBack={() => navigation.navigate('MainTabs')} />
 
       {/* Filter tabs */}
       <View style={styles.filters}>
@@ -42,12 +42,12 @@ const ActiveOrdersScreen = ({ navigation }) => {
                 <Text style={[styles.statusText, { color: order.statusColor }]}>{order.status}</Text>
               </View>
               <View style={styles.orderTitleRow}>
-                <Text style={styles.orderTitle}>{order.title}</Text>
+                <Text style={styles.orderTitle}>{order.title || (order.type === 'ونش' ? 'طلب ونش إنقاذ' : 'خدمة صيانة')}</Text>
                 <View style={styles.orderIcon}>
                   <Ionicons name={order.icon === 'truck' ? 'car' : 'construct' as any} size={22} color={colors.accent.primary} />
                 </View>
               </View>
-              <Text style={styles.orderId}>رقم الطلب: #{order.id}</Text>
+              <Text style={styles.orderId}>رقم الطلب: #{order.id?.substring(0, 8).toUpperCase()}</Text>
             </View>
 
             {order.driver && (
@@ -76,6 +76,20 @@ const ActiveOrdersScreen = ({ navigation }) => {
               <View style={styles.infoRow}>
                 <Text style={styles.infoText}>{order.location}</Text>
                 <Ionicons name="location-outline" size={16} color={colors.text.tertiary} />
+              </View>
+            )}
+
+            {order.car && (
+              <View style={[styles.infoRow, { marginTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.divider, paddingTop: spacing.sm }]}>
+                <Text style={styles.infoText}>{order.car.brand} {order.car.model} • {order.car.plate}</Text>
+                <Ionicons name="car-outline" size={16} color={colors.accent.primary} />
+              </View>
+            )}
+
+            {order.workshop && (
+              <View style={styles.infoRow}>
+                <Text style={styles.infoText}>{order.workshop.name}</Text>
+                <Ionicons name="business-outline" size={16} color={colors.accent.primary} />
               </View>
             )}
 

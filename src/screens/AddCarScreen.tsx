@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, ScrollView, StatusBar, TouchableOpacity, Activi
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
-import { addCar } from '../store/slices/garageSlice';
+import { addCarAsync } from '../store/slices/garageSlice';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius, shadows } from '../theme/spacing';
@@ -145,17 +145,14 @@ const AddCarScreen = ({ navigation }: any) => {
     setModel(''); // Reset model when brand changes
   };
 
-  const handleAdd = () => {
-    dispatch(addCar({ 
+  const handleAdd = async () => {
+    await dispatch(addCarAsync({ 
       brand: brand || 'مجهول', 
       model: model || 'مجهول', 
       year: parseInt(year) || new Date().getFullYear(), 
       plate: plate || 'بدون لوحة', 
       mileage: 0, 
-      nextService: 5000, 
-      color: '#FFF', 
-      image: null, 
-      lastLocation: null
+      color: '#FFF'
     }));
     
     navigation.goBack();

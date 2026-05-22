@@ -1,14 +1,14 @@
-// AutoGo - OTP Verification Screen (Design Image 03)
+// AutoGo - OTP Verification Screen (Mock Mode - بدون Backend)
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, StatusBar, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, StatusBar, TouchableOpacity, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { verifyOTP, sendOTP, setError } from '../store/slices/authSlice';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius } from '../theme/spacing';
 import Header from '../components/Header';
 import Button from '../components/Button';
 import { useAppDispatch } from '../hooks';
+import { mockVerifyOTP, setError } from '../store/slices/authSlice';
 
 const OTPScreen = ({ navigation, route }: any) => {
   const dispatch = useAppDispatch();
@@ -41,33 +41,29 @@ const OTPScreen = ({ navigation, route }: any) => {
 
   const handleVerify = async () => {
     const code = otp.join('');
-    console.log(`[AutoGo Debug] Attempting OTP verification for: ${phone}, code: ${code}`);
+    console.log(`[AutoGo] OTP verification (Mock Mode) for: ${phone}, code: ${code}`);
     
     if (code.length === 4) {
       try {
         setIsLoading(true);
-        console.log(`[AutoGo Debug] Dispatching verifyOTP...`);
-        const result = await dispatch(verifyOTP({ phone, otp: code })).unwrap();
-        console.log(`[AutoGo Debug] verifyOTP success:`, result);
-        
-        // Even though AppNavigator might swap stacks, we can add a timeout or manual navigate
-        // but let's see if the logs show we completed this step.
+        // التحقق الصوري - أي رمز مكون من 4 أرقام يُقبل
+        await dispatch(mockVerifyOTP({ phone, otp: code })).unwrap();
+        console.log(`[AutoGo] Mock OTP verification success!`);
+        // سيتم الانتقال تلقائياً عبر AppNavigator بعد تحديث الـ state
       } catch (err: any) {
-        console.error(`[AutoGo Debug] OTP Verification error:`, err);
-        dispatch(setError(err || 'الرمز غير صحيح'));
+        console.error(`[AutoGo] OTP error:`, err);
+        dispatch(setError(err || 'حدث خطأ'));
       } finally {
         setIsLoading(false);
       }
     }
   };
 
-  const handleResend = async () => {
-    try {
-      await dispatch(sendOTP(phone)).unwrap();
-      setTimer(55);
-    } catch (err: any) {
-      dispatch(setError(err || 'فشل إعادة إرسال الرمز'));
-    }
+  const handleResend = () => {
+    // إعادة إرسال صورية
+    Alert.alert('تم الإرسال', `تم إعادة إرسال رمز التحقق إلى ${phone}`);
+    setTimer(55);
+    setOtp(['', '', '', '']);
   };
 
   const formatTime = (seconds: number) => {
@@ -85,6 +81,11 @@ const OTPScreen = ({ navigation, route }: any) => {
         <Text style={styles.title}>رمز التحقق</Text>
         <Text style={styles.subtitle}>أدخل الرمز المكون من 4 أرقام المرسل إلى الرقم</Text>
         <Text style={styles.phone}>{phone}</Text>
+
+        {/* ملاحظة الوضع الصوري */}
+        <View style={styles.mockBadge}>
+          <Text style={styles.mockBadgeText}>🔓 وضع تجريبي — أي رمز مكون من 4 أرقام مقبول</Text>
+        </View>
 
         {/* OTP Inputs */}
         <View style={styles.otpContainer}>
@@ -155,7 +156,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: spacing.sm,
     letterSpacing: 2,
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.lg,
+  },
+  mockBadge: {
+    backgroundColor: 'rgba(45, 212, 191, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(45, 212, 191, 0.3)',
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.xl,
+    alignItems: 'center',
+  },
+  mockBadgeText: {
+    ...typography.caption,
+    color: colors.accent.primary,
+    textAlign: 'center',
   },
   otpContainer: {
     flexDirection: 'row',

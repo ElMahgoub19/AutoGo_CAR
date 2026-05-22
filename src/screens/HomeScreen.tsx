@@ -25,17 +25,16 @@ const HomeScreen = ({ navigation }: any) => {
 
   // Safe user formatting
   const firstName = user?.name ? user.name.split(' ')[0] : 'ضيف';
-  const userAvatar = user?.avatar || `https://ui-avatars.com/api/?name=${user?.name || 'M'}&background=2DD4BF&color=fff&size=256`;
+  const userAvatar = user?.avatarUrl || user?.avatar || `https://ui-avatars.com/api/?name=${user?.name || 'M'}&background=2DD4BF&color=fff&size=256`;
 
-  // NOTE: API fetching disabled to preserve professional mock data.
-  // Re-enable when backend has full production data.
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     dispatch(fetchCars());
-  //     dispatch(fetchActiveOrders());
-  //     dispatch(fetchProfile());
-  //   }
-  // }, [isAuthenticated]);
+  // Fetch data on mount if authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchCars());
+      dispatch(fetchActiveOrders());
+      dispatch(fetchProfile());
+    }
+  }, [isAuthenticated, dispatch]);
 
   // SOS Pulse Animation
   const pulseAnim = React.useRef(new Animated.Value(1)).current;
@@ -87,38 +86,58 @@ const HomeScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
 
-        {/* Active car card */}
-        {activeCar ? (
-          <Card style={styles.carCard} onPress={() => navigation.navigate('CarDetails', { car: activeCar })}>
-            <View style={styles.carCardContent}>
-              <View style={styles.carInfo}>
-                <View style={styles.carImagePlaceholder}>
-                  <Ionicons name="car-sport" size={50} color={colors.text.primary} />
-                </View>
-              </View>
-              <View style={styles.carDetails}>
-                <Text style={styles.carName}>{activeCar.brand} {activeCar.model}</Text>
-                <Text style={styles.carPlate}>{activeCar.plate}</Text>
-                <View style={styles.carStats}>
-                  <View style={styles.carStat}>
-                    <Ionicons name="speedometer-outline" size={14} color={colors.text.tertiary} />
-                    <Text style={styles.carStatText}>{(activeCar.mileage / 1000).toFixed(1)} ألف كم</Text>
+        {/* Cars List */}
+        {cars && cars.length > 0 ? (
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            pagingEnabled
+            snapToInterval={width - spacing.base * 2 + spacing.sm}
+            decelerationRate="fast"
+            contentContainerStyle={{ paddingRight: spacing.sm }}
+            style={{ marginHorizontal: -spacing.base }}
+          >
+            {cars.map((car, index) => (
+              <Card 
+                key={car.id} 
+                style={[styles.carCard, { width: width - spacing.base * 2, marginLeft: spacing.sm, ...(index === 0 ? { marginLeft: spacing.base } : {}) }]} 
+                onPress={() => navigation.navigate('CarDetails', { car })}
+              >
+                <View style={styles.carCardContent}>
+                  <View style={styles.carInfo}>
+                    <View style={styles.carImagePlaceholder}>
+                      {car.imageUrl ? (
+                        <Image source={{ uri: car.imageUrl }} style={{ width: '100%', height: '100%', borderRadius: 8, resizeMode: 'cover' }} />
+                      ) : (
+                        <Ionicons name="car-sport" size={50} color={colors.text.primary} />
+                      )}
+                    </View>
                   </View>
-                  <View style={styles.carStat}>
-                    <Ionicons name="calendar-outline" size={14} color={colors.text.tertiary} />
-                    <Text style={styles.carStatText}>{activeCar?.year || '-'}</Text>
+                  <View style={styles.carDetails}>
+                    <Text style={styles.carName}>{car.brand} {car.model}</Text>
+                    <Text style={styles.carPlate}>{car.plate}</Text>
+                    <View style={styles.carStats}>
+                      <View style={styles.carStat}>
+                        <Ionicons name="speedometer-outline" size={14} color={colors.text.tertiary} />
+                        <Text style={styles.carStatText}>{(car.mileage / 1000).toFixed(1)} ألف كم</Text>
+                      </View>
+                      <View style={styles.carStat}>
+                        <Ionicons name="calendar-outline" size={14} color={colors.text.tertiary} />
+                        <Text style={styles.carStatText}>{car.year || '-'}</Text>
+                      </View>
+                    </View>
                   </View>
                 </View>
-              </View>
-            </View>
-            {/* Reminder banner */}
-            {activeCar.reminders?.length > 0 && (
-              <View style={styles.reminderBanner}>
-                <Ionicons name="alert-circle" size={16} color={colors.emergency.primary} />
-                <Text style={styles.reminderText}>{activeCar.reminders[0].message}</Text>
-              </View>
-            )}
-          </Card>
+                {/* Reminder banner */}
+                {car.reminders?.length > 0 && (
+                  <View style={styles.reminderBanner}>
+                    <Ionicons name="alert-circle" size={16} color={colors.emergency.primary} />
+                    <Text style={styles.reminderText}>{car.reminders[0].message}</Text>
+                  </View>
+                )}
+              </Card>
+            ))}
+          </ScrollView>
         ) : (
           <Card style={styles.emptyCarCard} onPress={() => navigation.navigate('AddCar')}>
             <Ionicons name="add-circle-outline" size={48} color={colors.accent.primary} />
@@ -195,8 +214,8 @@ const HomeScreen = ({ navigation }: any) => {
                     </Text>
                   </View>
                   <View style={styles.orderInfo}>
-                    <Text style={styles.orderTitle}>{order.title}</Text>
-                    <Text style={styles.orderId}>رقم الطلب: #{order.id}</Text>
+                    <Text style={styles.orderTitle}>{order.title || (order.type === 'ونش' ? 'طلب ونش إنقاذ' : 'خدمة صيانة')}</Text>
+                    <Text style={styles.orderId}>رقم الطلب: #{order.id?.substring(0, 8).toUpperCase()}</Text>
                   </View>
                   <View style={styles.orderIcon}>
                     <Ionicons name={order.icon === 'truck' ? 'car' : 'construct' as any} size={22} color={colors.accent.primary} />

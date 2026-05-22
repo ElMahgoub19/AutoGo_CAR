@@ -1,6 +1,6 @@
 // AutoGo - Garage Screen (Design Images 08, 06)
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
@@ -17,10 +17,10 @@ const GarageScreen = ({ navigation }: any) => {
   const dispatch = useAppDispatch();
   const { cars } = useSelector((state: RootState) => state.garage);
 
-  // NOTE: API fetching disabled to preserve professional mock data.
-  // useEffect(() => {
-  //   dispatch(fetchCars());
-  // }, []);
+  // Fetch cars on mount
+  useEffect(() => {
+    dispatch(fetchCars());
+  }, [dispatch]);
 
   return (
     <LinearGradient colors={colors.gradient.primary} style={styles.container}>
@@ -79,7 +79,11 @@ const GarageScreen = ({ navigation }: any) => {
 
               <View style={styles.carContent}>
                 <View style={styles.carImageBox}>
-                  <Ionicons name="car-sport" size={55} color={colors.text.primary} />
+                  {car.imageUrl ? (
+                    <Image source={{ uri: car.imageUrl }} style={{ width: '100%', height: '100%', borderRadius: 8, resizeMode: 'cover' }} />
+                  ) : (
+                    <Ionicons name="car-sport" size={55} color={colors.text.primary} />
+                  )}
                 </View>
                 <View style={styles.carInfo}>
                   <Text style={styles.carName}>{car.brand} {car.model}</Text>

@@ -1,6 +1,6 @@
 // AutoGo - Workshop Detail Screen (Design Image 25)
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, StatusBar, ImageBackground } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
@@ -28,19 +28,35 @@ const WorkshopDetailScreen = ({ navigation, route }) => {
       <Header title="" onBack={() => navigation.goBack()} rightIcon="share-outline" />
       <ScrollView contentContainerStyle={styles.content}>
         {/* Workshop image placeholder */}
-        <View style={styles.imageContainer}>
-          <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={styles.imageOverlay}>
-            <View style={styles.ratingBadge}>
-              <Ionicons name="star-outline" size={14} color="#FFF" />
-              <Text style={styles.ratingText}>{ws.rating || 4.9}</Text>
-            </View>
-            <Text style={styles.wsName}>{ws.name || 'مركز الرياض لصيانة تيسلا'}</Text>
-            <View style={styles.addressRow}>
-              <Text style={styles.addressText}>{ws.address || 'حي الملقا، طريق الملك فهد، الرياض'}</Text>
-              <Ionicons name="location" size={14} color={colors.text.secondary} />
-            </View>
-          </LinearGradient>
-        </View>
+        {ws.imageUrl ? (
+          <ImageBackground source={{ uri: ws.imageUrl }} style={styles.imageContainer} imageStyle={{ borderRadius: borderRadius.lg }}>
+            <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={styles.imageOverlay}>
+              <View style={styles.ratingBadge}>
+                <Ionicons name="star-outline" size={14} color="#FFF" />
+                <Text style={styles.ratingText}>{ws.rating || 4.9}</Text>
+              </View>
+              <Text style={styles.wsName}>{ws.name || 'مركز الرياض لصيانة تيسلا'}</Text>
+              <View style={styles.addressRow}>
+                <Text style={styles.addressText}>{ws.address || 'حي الملقا، طريق الملك فهد، الرياض'}</Text>
+                <Ionicons name="location" size={14} color={colors.text.secondary} />
+              </View>
+            </LinearGradient>
+          </ImageBackground>
+        ) : (
+          <View style={styles.imageContainer}>
+            <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={styles.imageOverlay}>
+              <View style={styles.ratingBadge}>
+                <Ionicons name="star-outline" size={14} color="#FFF" />
+                <Text style={styles.ratingText}>{ws.rating || 4.9}</Text>
+              </View>
+              <Text style={styles.wsName}>{ws.name || 'مركز الرياض لصيانة تيسلا'}</Text>
+              <View style={styles.addressRow}>
+                <Text style={styles.addressText}>{ws.address || 'حي الملقا، طريق الملك فهد، الرياض'}</Text>
+                <Ionicons name="location" size={14} color={colors.text.secondary} />
+              </View>
+            </LinearGradient>
+          </View>
+        )}
 
         {/* Features */}
         <View style={styles.featuresRow}>
@@ -55,7 +71,12 @@ const WorkshopDetailScreen = ({ navigation, route }) => {
         </View>
 
         {/* Map */}
-        <MapPlaceholder height={160} label="عرض على الخريطة" style={{ marginBottom: spacing.lg }} />
+        <MapPlaceholder 
+          height={160} 
+          label="عرض على الخريطة" 
+          style={{ marginBottom: spacing.lg }} 
+          region={ws.latitude && ws.longitude ? { latitude: Number(ws.latitude), longitude: Number(ws.longitude) } : undefined}
+        />
 
         {/* Hours */}
         <Card style={styles.hoursCard}>

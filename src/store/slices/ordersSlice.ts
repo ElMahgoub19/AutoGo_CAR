@@ -2,12 +2,11 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import api from '../../api/apiClient';
 import type { Order, HistoryOrder, OrdersState } from '../../types';
-import { mockOrders, mockHistory } from '../../data/mockData';
 
 // Request tow (SOS)
 export const requestTow = createAsyncThunk(
   'orders/requestTow',
-  async (orderData: { latitude?: number; longitude?: number; address?: string; carId?: string; notes?: string }, { rejectWithValue }) => {
+  async (orderData: { latitude?: number; longitude?: number; address?: string; carId?: string; notes?: string; price?: number }, { rejectWithValue }) => {
     try {
       const res = await api.post('/orders/tow', orderData);
       return res.data;
@@ -20,7 +19,7 @@ export const requestTow = createAsyncThunk(
 // Book service (maintenance)
 export const bookService = createAsyncThunk(
   'orders/bookService',
-  async (bookingData: { serviceId?: string; workshopId?: string; carId?: string; date?: string; time?: string; serviceMethod?: string; notes?: string }, { rejectWithValue }) => {
+  async (bookingData: { serviceId?: string; workshopId?: string; carId?: string; date?: string; time?: string; serviceMethod?: string; notes?: string; price?: number }, { rejectWithValue }) => {
     try {
       const res = await api.post('/orders/booking', bookingData);
       return res.data;
@@ -82,10 +81,10 @@ export const rateOrderAsync = createAsyncThunk(
   }
 );
 
-// Start with mock data so the app always looks professional
+// Start with empty data
 const initialState: OrdersState = {
-  activeOrders: mockOrders,
-  history: mockHistory,
+  activeOrders: [],
+  history: [],
   currentOrder: null,
   isSearching: false,
   driverFound: false,
@@ -156,7 +155,9 @@ const ordersSlice = createSlice({
         state.isSearching = false;
         state.driverFound = true;
         state.currentOrder = action.payload;
-        state.activeOrders.unshift(action.payload);
+        if (!state.activeOrders.find(o => o.id === action.payload.id)) {
+          state.activeOrders.unshift(action.payload);
+        }
       })
       .addCase(requestTow.rejected, (state) => { state.isLoading = false; state.isSearching = false; })
       // Book Service
@@ -164,7 +165,9 @@ const ordersSlice = createSlice({
       .addCase(bookService.fulfilled, (state, action) => {
         state.isLoading = false;
         state.currentOrder = action.payload;
-        state.activeOrders.unshift(action.payload);
+        if (!state.activeOrders.find(o => o.id === action.payload.id)) {
+          state.activeOrders.unshift(action.payload);
+        }
       })
       .addCase(bookService.rejected, (state) => { state.isLoading = false; })
       // Fetch Active

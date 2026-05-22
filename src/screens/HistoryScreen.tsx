@@ -18,7 +18,15 @@ const HistoryScreen = ({ navigation }) => {
   const { history } = useSelector((state: RootState) => state.orders);
   const [filter, setFilter] = useState('الكل');
   const [search, setSearch] = useState('');
-  const filters = ['الكل', 'تسلا موديل 3', 'مرسيدس S-Class'];
+  const filters = ['الكل', 'ونش', 'صيانة'];
+  
+  const filteredHistory = history.filter((order) => {
+    const matchesFilter = filter === 'الكل' || order.type === filter;
+    const matchesSearch = order.title.includes(search) || 
+                         (order.car?.brand && order.car.brand.includes(search)) ||
+                         (order.car?.model && order.car.model.includes(search));
+    return matchesFilter && matchesSearch;
+  });
 
   return (
     <LinearGradient colors={colors.gradient.primary} style={styles.container}>
@@ -38,14 +46,14 @@ const HistoryScreen = ({ navigation }) => {
       </ScrollView>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {history.map((order) => (
+        {filteredHistory.map((order) => (
           <Card key={order.id} style={styles.orderCard} onPress={() => navigation.navigate('OrderDetail', { order })}>
             <View style={styles.orderHeader}>
               <View style={[styles.statusBadge, { backgroundColor: (statusColors[order.status] || colors.text.muted) + '20' }]}>
                 <Text style={[styles.statusText, { color: statusColors[order.status] || colors.text.muted }]}>{order.status}</Text>
               </View>
               <View style={styles.orderTitleRow}>
-                <Text style={styles.orderTitle}>{order.title}</Text>
+                <Text style={styles.orderTitle}>{order.title || (order.type === 'ونش' ? 'طلب ونش إنقاذ' : 'خدمة صيانة')}</Text>
                 <View style={styles.orderIcon}>
                   <Ionicons name={order.icon === 'truck' ? 'car' : order.icon === 'sparkles' ? 'sparkles' : 'construct' as any} size={22} color={colors.accent.primary} />
                 </View>

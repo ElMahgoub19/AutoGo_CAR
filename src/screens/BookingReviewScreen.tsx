@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, ScrollView, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
-import { bookService } from '../store/slices/ordersSlice';
+import { bookService, fetchActiveOrders } from '../store/slices/ordersSlice';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius } from '../theme/spacing';
@@ -16,13 +16,21 @@ import { useAppDispatch } from '../hooks';
 
 const BookingReviewScreen = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { selectedService, selectedWorkshop, selectedDate, selectedTime } = useSelector((s: RootState) => s.services);
+  const { selectedService, selectedWorkshop, selectedDate, selectedTime, serviceMethod } = useSelector((s: RootState) => s.services);
   const { user } = useSelector((s: RootState) => s.auth);
+  const { activeCar } = useSelector((s: RootState) => s.garage);
 
   const handleConfirm = async () => {
     await dispatch(bookService({
-      serviceName: selectedService?.name || 'تغيير الزيت والفلاتر',
-    } as any));
+      serviceId: selectedService?.id,
+      workshopId: selectedWorkshop?.id,
+      carId: activeCar?.id,
+      date: selectedDate || undefined,
+      time: selectedTime || undefined,
+      serviceMethod: serviceMethod || undefined,
+      price: selectedService?.price
+    }));
+    dispatch(fetchActiveOrders());
     navigation.navigate('MainTabs');
   };
 
@@ -72,7 +80,7 @@ const BookingReviewScreen = ({ navigation }) => {
             <Ionicons name="person-outline" size={22} color={colors.text.tertiary} />
           </View>
           <View style={[styles.contactRow, { marginTop: spacing.md }]}>
-            <Text style={styles.contactPhone}>{user?.phone || '+966 50 XXXX XXX'}</Text>
+            <Text style={styles.contactPhone}>{user?.phone || '+02X XX XXXX XX'}</Text>
             <Ionicons name="call-outline" size={22} color={colors.text.tertiary} />
           </View>
         </Card>

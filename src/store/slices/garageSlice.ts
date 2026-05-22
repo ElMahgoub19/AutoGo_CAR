@@ -2,7 +2,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import api from '../../api/apiClient';
 import type { Car, GarageState } from '../../types';
-import { mockCars } from '../../data/mockData';
 
 // Fetch user's cars from API
 export const fetchCars = createAsyncThunk(
@@ -43,10 +42,23 @@ export const deleteCarAsync = createAsyncThunk(
   }
 );
 
-// Start with mock data so the app always looks professional
+// Update car via API
+export const updateCarAsync = createAsyncThunk(
+  'garage/updateCar',
+  async ({ carId, data }: { carId: string, data: Partial<Car> }, { rejectWithValue }) => {
+    try {
+      const res = await api.put(`/cars/${carId}`, data);
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// Start with empty data
 const initialState: GarageState = {
-  cars: mockCars,
-  activeCar: mockCars[0] || null,
+  cars: [],
+  activeCar: null,
   isLoading: false,
 };
 
@@ -98,6 +110,13 @@ const garageSlice = createSlice({
         state.cars = state.cars.filter(c => c.id !== action.payload);
         if (state.activeCar?.id === action.payload) {
           state.activeCar = state.cars[0] || null;
+        }
+      })
+      .addCase(updateCarAsync.fulfilled, (state, action) => {
+        const updatedCar = action.payload;
+        state.cars = state.cars.map(c => c.id === updatedCar.id ? updatedCar : c);
+        if (state.activeCar?.id === updatedCar.id) {
+          state.activeCar = updatedCar;
         }
       });
   },

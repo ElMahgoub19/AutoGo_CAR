@@ -131,12 +131,16 @@ async function main() {
 
   // ─── Workshops ────────────────────────────────────────
   const workshopsData = [
-    { name: 'مركز النيل لصيانة السيارات', address: 'المعادي، شارع النصر، القاهرة', lat: 30.0444, lng: 31.2357, rating: 4.9, reviewCount: 1240, features: ['مركز معتمد', 'مواقف سيارات', 'واي فاي مجاني', 'منطقة انتظار'], openHours: '08:00 ص - 10:00 م', workDays: 'الأحد - الخميس' },
-    { name: 'مركز المهندس المتخصص', address: 'الدقي، ميدان فيني، الجيزة', lat: 30.0395, lng: 31.2157, rating: 4.8, reviewCount: 850, features: ['قطع غيار أصلية', 'فحص كمبيوتر', 'ضمان على الخدمة'], openHours: '09:00 ص - 09:00 م', workDays: 'السبت - الخميس' },
-    { name: 'ورشة السلام المتكاملة', address: 'مدينة نصر، مكرم عبيد، القاهرة', lat: 30.0595, lng: 31.3457, rating: 4.5, reviewCount: 320, features: ['مركز معتمد', 'مواقف سيارات', 'منطقة انتظار'], openHours: '09:00 ص - 09:00 م', workDays: 'السبت - الخميس', isOpen: false },
-    { name: 'أوتو سيرفيس الأهرام', address: 'شارع الهرم، الجيزة', lat: 29.9895, lng: 31.1457, rating: 4.3, reviewCount: 210, features: ['غسيل سيارات', 'تغيير إطارات', 'مقهى'], openHours: '08:30 ص - 10:30 م', workDays: 'يومياً' },
-    { name: 'مركز النور لكهرباء السيارات', address: 'مصر الجديدة، ميدان تريومف، القاهرة', lat: 30.1095, lng: 31.3357, rating: 4.7, reviewCount: 450, features: ['شحن بطارية', 'تكييف', 'متخصص كهرباء'], openHours: '10:00 ص - 11:00 م', workDays: 'السبت - الخميس' },
-    { name: 'مركز طيبة للميكانيكا', address: 'التجمع الخامس، شارع التسعين، القاهرة', lat: 30.0195, lng: 31.4257, rating: 4.6, reviewCount: 156, features: ['خدمة VIP', 'سيارة بديلة', 'مواقف خاصة'], openHours: '09:00 ص - 08:00 م', workDays: 'يومياً' },
+    { name: 'مركز النيل لصيانة السيارات', address: 'المعادي، شارع النصر، القاهرة', lat: 30.0444, lng: 31.2357, rating: 4.9, reviewCount: 1240, features: ['مركز معتمد', 'مواقف سيارات', 'واي فاي مجاني', 'منطقة انتظار'], openHours: '08:00 ص - 10:00 م', workDays: 'الأحد - الخميس', imageUrl: 'https://images.unsplash.com/photo-1590240974950-84c8a8108500?q=80&w=600&auto=format&fit=crop' },
+    { name: 'مركز المهندس المتخصص', address: 'الدقي، ميدان فيني، الجيزة', lat: 30.0395, lng: 31.2157, rating: 4.8, reviewCount: 850, features: ['قطع غيار أصلية', 'فحص كمبيوتر', 'ضمان على الخدمة'], openHours: '09:00 ص - 09:00 م', workDays: 'السبت - الخميس', imageUrl: 'https://images.unsplash.com/photo-1621252178223-958a436deec6?q=80&w=600&auto=format&fit=crop' },
+    { name: 'ورشة السلام المتكاملة', address: 'مدينة نصر، مكرم عبيد، القاهرة', lat: 30.0595, lng: 31.3457, rating: 4.5, reviewCount: 320, features: ['مركز معتمد', 'مواقف سيارات', 'منطقة انتظار'], openHours: '09:00 ص - 09:00 م', workDays: 'السبت - الخميس', isOpen: false, imageUrl: 'https://images.unsplash.com/photo-1625047509248-ec889cbff17f?q=80&w=600&auto=format&fit=crop' },
+    { name: 'أوتو سيرفيس الأهرام', address: 'شارع الهرم، الجيزة', lat: 29.9895, lng: 31.1457, rating: 4.3, reviewCount: 210, features: ['غسيل سيارات', 'تغيير إطارات', 'مقهى'], openHours: '08:30 ص - 10:30 م', workDays: 'يومياً', imageUrl: 'https://images.unsplash.com/photo-1486006920555-c77dcf18193c?q=80&w=600&auto=format&fit=crop' },
+    { name: 'مركز النور لكهرباء السيارات', address: 'مصر الجديدة، ميدان تريومف، القاهرة', lat: 30.1095, lng: 31.3357, rating: 4.7, reviewCount: 450, features: ['شحن بطارية', 'تكييف', 'متخصص كهرباء'], openHours: '10:00 ص - 11:00 م', workDays: 'السبت - الخميس', imageUrl: 'https://images.unsplash.com/photo-1632823469145-8f64e1c793ba?q=80&w=600&auto=format&fit=crop' },
+    { name: 'مركز طيبة للميكانيكا', address: 'التجمع الخامس، شارع التسعين، القاهرة', lat: 30.0195, lng: 31.4257, rating: 4.6, reviewCount: 156, features: ['خدمة VIP', 'سيارة بديلة', 'مواقف خاصة'], openHours: '09:00 ص - 08:00 م', workDays: 'يومياً', imageUrl: 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?q=80&w=600&auto=format&fit=crop' },
+    { name: 'جراج الملوك للسيارات الفارهة', address: 'الشيخ زايد، بيفرلي هيلز، الجيزة', lat: 30.055, lng: 30.985, rating: 5.0, reviewCount: 890, features: ['صيانة سيارات فاخرة', 'تلميع نانو', 'غسيل بالبخار'], openHours: '10:00 ص - 10:00 م', workDays: 'يومياً', imageUrl: 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?q=80&w=600&auto=format&fit=crop' },
+    { name: 'مركز العروبة للفرامل', address: 'المندرة، الإسكندرية', lat: 31.275, lng: 30.015, rating: 4.4, reviewCount: 220, features: ['تيل فرامل', 'تغيير طنابير', 'كشف مجاني'], openHours: '08:00 ص - 06:00 م', workDays: 'السبت - الخميس', imageUrl: 'https://images.unsplash.com/photo-1503375811776-e1f96409b30c?q=80&w=600&auto=format&fit=crop' },
+    { name: 'سيرفيس برو الشروق', address: 'مدينة الشروق، الطريق الدائري', lat: 30.150, lng: 31.620, rating: 4.8, reviewCount: 610, features: ['تغيير زيت', 'تلميع هيكل', 'صيانة دورية'], openHours: '09:00 ص - 09:00 م', workDays: 'يومياً', imageUrl: 'https://images.unsplash.com/photo-1504222490345-c075b6008014?q=80&w=600&auto=format&fit=crop' },
+    { name: 'ورشة الأمل السريع', address: 'العباسية، القاهرة', lat: 30.075, lng: 31.280, rating: 4.2, reviewCount: 300, features: ['إصلاح شكمانات', 'عفشة', 'تغيير فلاتر'], openHours: '10:00 ص - 12:00 م', workDays: 'يومياً', imageUrl: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=600&auto=format&fit=crop' }
   ];
   const workshops = [];
   for (const w of workshopsData) {
@@ -145,6 +149,7 @@ async function main() {
         name: w.name, address: w.address, latitude: w.lat, longitude: w.lng,
         rating: w.rating, reviewCount: w.reviewCount, features: w.features,
         openHours: w.openHours, workDays: w.workDays, isOpen: w.isOpen !== false,
+        imageUrl: w.imageUrl
       },
     });
     workshops.push(ws);

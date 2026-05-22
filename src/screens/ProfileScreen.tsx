@@ -11,6 +11,9 @@ import { spacing, borderRadius } from '../theme/spacing';
 import Card from '../components/Card';
 import type { RootState } from '../types';
 import { useAppDispatch } from '../hooks';
+import * as ImagePicker from 'expo-image-picker';
+import { updateAvatarAsync } from '../store/slices/authSlice';
+import { Image, Alert } from 'react-native';
 
 const ProfileScreen = ({ navigation }: any) => {
   const dispatch = useAppDispatch();
@@ -21,6 +24,26 @@ const ProfileScreen = ({ navigation }: any) => {
     phone: user?.phone || '',
     points: user?.points || 0,
     membershipType: user?.membershipType || 'عادي',
+    avatarUrl: user?.avatarUrl || null,
+  };
+
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('عذراً', 'نحتاج إلى إذن للوصول إلى معرض الصور.');
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      dispatch(updateAvatarAsync(result.assets[0].uri));
+    }
   };
 
   const menuItems = [
@@ -43,9 +66,16 @@ const ProfileScreen = ({ navigation }: any) => {
       <ScrollView contentContainerStyle={styles.content}>
         {/* Profile header */}
         <View style={styles.header}>
-          <View style={styles.avatar}>
-            <Ionicons name="person" size={40} color={colors.text.secondary} />
-          </View>
+          <TouchableOpacity style={styles.avatar} onPress={pickImage}>
+            {displayUser.avatarUrl ? (
+              <Image source={{ uri: displayUser.avatarUrl }} style={{ width: '100%', height: '100%', borderRadius: 50 }} />
+            ) : (
+              <Ionicons name="person" size={40} color={colors.text.secondary} />
+            )}
+            <View style={{ position: 'absolute', bottom: 0, right: 0, backgroundColor: colors.accent.primary, borderRadius: 12, width: 24, height: 24, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.background.primary }}>
+              <Ionicons name="camera" size={12} color="#000" />
+            </View>
+          </TouchableOpacity>
           <Text style={styles.name}>{displayUser.name}</Text>
           <Text style={styles.phone}>{displayUser.phone}</Text>
 

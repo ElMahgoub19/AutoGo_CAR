@@ -1,53 +1,93 @@
-// AutoGo - Login Screen (Design Image 02)
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, KeyboardAvoidingView, Platform, ScrollView, TextInput, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { sendOTP, setError } from '../store/slices/authSlice';
+
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { spacing, borderRadius } from '../theme/spacing';
 import Button from '../components/Button';
-import Input from '../components/Input';
 import { useAppDispatch } from '../hooks';
-import { formatEgyptianPhone, isValidEgyptianPhone } from '../utils/phone';
+import { sendOTP, mockSocialLogin } from '../store/slices/authSlice';
 
 const LoginScreen = ({ navigation }: any) => {
   const dispatch = useAppDispatch();
-  const [isLoading, setIsLoading] = useState(false);
   const [phone, setPhone] = useState('');
-  const [agreed, setAgreed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async () => {
-    const formattedPhone = formatEgyptianPhone(phone);
-    console.log(`[AutoGo Debug] Attempting login with: ${formattedPhone}`);
+  // التحقق من صحة رقم الهاتف المصري (10 أرقام بدون كود الدولة)
+  const isValidPhone = phone.replace(/\s/g, '').length === 10;
+
+  const handleSendOTP = async () => {
+    if (!isValidPhone) {
+      Alert.alert('خطأ', 'يرجى إدخال رقم هاتف مصري صحيح (10 أرقام)');
+      return;
+    }
+
+    const fullPhone = `+20${phone.replace(/\s/g, '')}`;
     
-    if (isValidEgyptianPhone(phone) && agreed) {
-      try {
-        setIsLoading(true);
-        console.log(`[AutoGo Debug] Dispatching sendOTP...`);
-        const result = await dispatch(sendOTP(formattedPhone)).unwrap();
-        console.log(`[AutoGo Debug] sendOTP success:`, result);
-        
-        console.log(`[AutoGo Debug] Navigating to OTP screen...`);
-        navigation.navigate('OTP', { phone: formattedPhone, isSignUp: false });
-      } catch (err: any) {
-        console.error(`[AutoGo Debug] Login error:`, err);
-        dispatch(setError(err || 'حدث خطأ في إرسال رمز التحقق'));
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      console.warn(`[AutoGo Debug] Validation failed: isValid=${isValidEgyptianPhone(phone)}, agreed=${agreed}`);
+    try {
+      setIsLoading(true);
+      await dispatch(sendOTP(fullPhone)).unwrap();
+      navigation.navigate('OTP', { phone: fullPhone });
+    } catch (err: any) {
+      // حتى لو فشل الـ API، ننتقل لشاشة الـ OTP (وضع صوري)
+      console.log('[AutoGo] Mock mode - navigating to OTP');
+      navigation.navigate('OTP', { phone: fullPhone });
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // تسجيل الدخول بجوجل (صوري)
+  const handleGoogleLogin = async () => {
+    try {
+      setIsLoading(true);
+      await dispatch(mockSocialLogin({
+        provider: 'google',
+        name: 'مستخدم جوجل',
+        email: 'user@gmail.com',
+        avatarUrl: undefined,
+      })).unwrap();
+      console.log('[AutoGo] Mock Google login success');
+    } catch (err) {
+      console.error('[AutoGo] Google login error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // تسجيل الدخول بأبل (صوري)
+  const handleAppleLogin = async () => {
+    try {
+      setIsLoading(true);
+      await dispatch(mockSocialLogin({
+        provider: 'apple',
+        name: 'مستخدم أبل',
+        email: 'user@icloud.com',
+        avatarUrl: undefined,
+      })).unwrap();
+      console.log('[AutoGo] Mock Apple login success');
+    } catch (err) {
+      console.error('[AutoGo] Apple login error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // تنسيق رقم الهاتف أثناء الكتابة
+  const formatPhoneNumber = (text: string) => {
+    const cleaned = text.replace(/\D/g, '').slice(0, 10);
+    setPhone(cleaned);
+  };
+
   return (
-    <LinearGradient colors={colors.gradient.primary} style={styles.container}>
+    <LinearGradient colors={colors.gradient.primary as unknown as string[]} style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          {/* Logo */}
+          
+          {/* الشعار (Logo) */}
           <View style={styles.logoContainer}>
             <View style={styles.logoCircle}>
               <Ionicons name="car-sport" size={40} color={colors.text.primary} />
@@ -57,60 +97,95 @@ const LoginScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          {/* Welcome text */}
           <Text style={styles.title}>
             مرحباً بك في <Text style={styles.titleAccent}>AUTOGO</Text>
           </Text>
           <Text style={styles.subtitle}>سجل دخولك لتبدأ العناية بسيارتك</Text>
 
-          {/* Phone input */}
+          {/* حقل إدخال رقم الهاتف */}
           <View style={styles.formContainer}>
-            <Input
-              label="رقم الموبايل"
-              value={phone}
-              onChangeText={setPhone}
-              placeholder="1X XXXX XXXX"
-              keyboardType="phone-pad"
-              prefix="+20"
-              maxLength={10}
-            />
-
-            {/* Terms checkbox */}
-            <TouchableOpacity 
-              style={styles.checkRow} 
-              onPress={() => setAgreed(!agreed)}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.checkText}>
-                أوافق على{' '}
-                <Text style={styles.checkLink} onPress={() => navigation.navigate('Terms')}>شروط الخدمة</Text>
-                {' '}و{' '}
-                <Text style={styles.checkLink} onPress={() => navigation.navigate('Terms')}>سياسة الخصوصية</Text>
-              </Text>
-              <View style={[styles.checkbox, agreed && styles.checkboxChecked]}>
-                {agreed && <Ionicons name="checkmark" size={14} color={colors.button.primaryText} />}
+            <Text style={styles.inputLabel}>رقم الهاتف</Text>
+            <View style={styles.phoneInputContainer}>
+              {/* حقل الإدخال */}
+              <TextInput
+                style={styles.phoneInput}
+                value={phone}
+                onChangeText={formatPhoneNumber}
+                placeholder="1XX XXXX XXX"
+                placeholderTextColor="rgba(255,255,255,0.3)"
+                keyboardType="phone-pad"
+                maxLength={10}
+                textAlign="left"
+              />
+              {/* بادئة الدولة +20 */}
+              <View style={styles.countryCode}>
+                <Text style={styles.flagEmoji}>🇪🇬</Text>
+                <Text style={styles.countryCodeText}>20+</Text>
               </View>
-            </TouchableOpacity>
+            </View>
 
+            {/* زر تسجيل الدخول */}
             <Button
-              title="متابعة"
-              onPress={handleLogin}
+              title="تسجيل الدخول"
+              onPress={handleSendOTP}
               loading={isLoading}
-              disabled={phone.length < 10 || !agreed}
-              style={{ marginTop: spacing.base }}
+              disabled={!isValidPhone}
+              style={{ marginTop: spacing.xl }}
             />
           </View>
 
-          {/* Terms */}
+          {/* فاصل */}
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>أو</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* أزرار تسجيل الدخول الاجتماعي */}
+          <View style={styles.socialContainer}>
+            {/* Google Button */}
+            <TouchableOpacity 
+              style={styles.googleButton} 
+              onPress={handleGoogleLogin} 
+              disabled={isLoading}
+            >
+              <Text style={styles.googleButtonText}>المتابعة باستخدام جوجل</Text>
+              <Ionicons name="logo-google" size={24} color="#4285F4" style={styles.socialIcon} />
+            </TouchableOpacity>
+
+            {/* Apple Button */}
+            {Platform.OS === 'ios' && (
+              <TouchableOpacity 
+                style={styles.appleButton} 
+                onPress={handleAppleLogin} 
+                disabled={isLoading}
+              >
+                <Text style={styles.appleButtonText}>المتابعة باستخدام أبل</Text>
+                <Ionicons name="logo-apple" size={24} color="#FFFFFF" style={styles.socialIcon} />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* روابط إضافية */}
+          <View style={styles.linksContainer}>
+            <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+              <Text style={styles.linkText}>
+                ليس لديك حساب؟ <Text style={styles.linkAccent}>سجل الآن</Text>
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* الشروط والأحكام */}
           <View style={styles.termsContainer}>
             <Text style={styles.termsText}>
               باستمرارك، فإنك توافق على{' '}
-              <Text style={styles.termsLink}>شروط الخدمة</Text>
+              <Text style={styles.termsLink} onPress={() => navigation.navigate('Terms')}>شروط الخدمة</Text>
               {' '}و{' '}
-              <Text style={styles.termsLink}>سياسة الخصوصية</Text>
+              <Text style={styles.termsLink} onPress={() => navigation.navigate('Terms')}>سياسة الخصوصية</Text>
               {' '}الخاصة بنا.
             </Text>
           </View>
+
         </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>
@@ -123,77 +198,126 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: spacing.xl,
     paddingTop: 80,
+    paddingBottom: 40,
   },
   logoContainer: { alignItems: 'center', marginBottom: spacing.xl },
   logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 80, height: 80, borderRadius: 40,
     backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.12)',
+    alignItems: 'center', justifyContent: 'center',
   },
   logoBolt: { position: 'absolute', bottom: 18, right: 18 },
   title: {
-    ...typography.h2,
-    color: colors.text.primary,
-    textAlign: 'center',
+    ...typography.h2, color: colors.text.primary,
+    textAlign: 'center', marginBottom: spacing.sm,
+  },
+  titleAccent: { color: '#00b4d8' },
+  subtitle: {
+    ...typography.body, color: colors.text.secondary,
+    textAlign: 'center', marginBottom: spacing.xxl,
+  },
+  formContainer: { marginBottom: spacing.md },
+  inputLabel: {
+    ...typography.label,
+    color: colors.text.secondary,
+    textAlign: 'right',
     marginBottom: spacing.sm,
   },
-  titleAccent: { color: colors.accent.primary },
-  subtitle: {
-    ...typography.body,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: spacing.xxl,
-  },
-  formContainer: { marginBottom: spacing.lg },
-  checkRow: {
+  phoneInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: spacing.sm,
-    marginBottom: spacing.base,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderRadius: borderRadius.lg,
     borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: 'rgba(255,255,255,0.12)',
+    height: 60,
+    overflow: 'hidden',
+  },
+  countryCode: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+    borderLeftWidth: 1,
+    borderLeftColor: 'rgba(255,255,255,0.12)',
+    height: '100%',
+    backgroundColor: 'rgba(255,255,255,0.04)',
   },
-  checkboxChecked: {
-    backgroundColor: colors.accent.primary,
-    borderColor: colors.accent.primary,
+  flagEmoji: {
+    fontSize: 20,
+    marginLeft: spacing.xs,
   },
-  checkText: {
-    ...typography.bodySmall,
-    color: colors.text.secondary,
+  countryCodeText: {
+    ...typography.body,
+    color: colors.text.primary,
+    fontWeight: '700',
+  },
+  phoneInput: {
     flex: 1,
-    textAlign: 'right',
+    height: '100%',
+    paddingHorizontal: spacing.md,
+    ...typography.h4,
+    color: colors.text.primary,
+    letterSpacing: 1.5,
   },
-  checkLink: { 
-    color: colors.accent.primary, 
-    textDecorationLine: 'underline' 
+  dividerContainer: {
+    flexDirection: 'row', alignItems: 'center',
+    marginVertical: spacing.lg,
+  },
+  dividerLine: {
+    flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.15)',
+  },
+  dividerText: {
+    ...typography.bodySmall, color: 'rgba(255,255,255,0.6)',
+    paddingHorizontal: spacing.md,
+  },
+  socialContainer: {
+    flexDirection: 'column', gap: spacing.md,
+  },
+  googleButton: {
+    flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'center', backgroundColor: '#FFFFFF',
+    borderRadius: borderRadius.lg, paddingVertical: spacing.md,
+    height: 56,
+  },
+  googleButtonText: {
+    ...typography.button, color: '#000000',
+    marginRight: spacing.sm,
+    fontWeight: '700',
+  },
+  appleButton: {
+    flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'center', backgroundColor: '#000000',
+    borderRadius: borderRadius.lg, paddingVertical: spacing.md,
+    height: 56,
+  },
+  appleButtonText: {
+    ...typography.button, color: '#FFFFFF',
+    marginRight: spacing.sm,
+    fontWeight: '700',
+  },
+  socialIcon: {
+    marginLeft: spacing.sm,
+  },
+  linksContainer: {
+    alignItems: 'center',
+    marginTop: spacing.xl,
+  },
+  linkText: {
+    ...typography.body, color: colors.text.secondary,
+  },
+  linkAccent: {
+    color: '#00b4d8', fontWeight: '700',
   },
   termsContainer: {
-    marginTop: 'auto',
-    paddingBottom: spacing.xxl,
-    paddingTop: spacing.lg,
+    marginTop: 'auto', paddingTop: spacing.xl,
   },
   termsText: {
-    ...typography.caption,
-    color: colors.text.tertiary,
-    textAlign: 'center',
-    lineHeight: 20,
+    ...typography.caption, color: 'rgba(255,255,255,0.5)',
+    textAlign: 'center', lineHeight: 22,
   },
   termsLink: {
-    color: colors.accent.primary,
-    textDecorationLine: 'underline',
+    color: '#00b4d8', textDecorationLine: 'underline',
   },
 });
 

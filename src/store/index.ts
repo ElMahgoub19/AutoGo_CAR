@@ -4,6 +4,7 @@ import authReducer from './slices/authSlice';
 import garageReducer from './slices/garageSlice';
 import ordersReducer from './slices/ordersSlice';
 import servicesReducer from './slices/servicesSlice';
+import addressReducer from './slices/addressSlice';
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
     garage: garageReducer,
     orders: ordersReducer,
     services: servicesReducer,
+    address: addressReducer,
   },
 });
 

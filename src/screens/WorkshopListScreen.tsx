@@ -1,6 +1,6 @@
 // AutoGo - Workshop List Screen (Design Image 24)
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, StatusBar, TouchableOpacity, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
@@ -18,10 +18,10 @@ const WorkshopListScreen = ({ navigation }: any) => {
   const dispatch = useAppDispatch();
   const { workshops } = useSelector((state: RootState) => state.services);
 
-  // NOTE: API fetching disabled to preserve professional mock data.
-  // useEffect(() => {
-  //   dispatch(fetchWorkshops());
-  // }, []);
+  // Fetch workshops from API
+  useEffect(() => {
+    dispatch(fetchWorkshops());
+  }, [dispatch]);
 
   const handleSelect = (ws) => {
     dispatch(selectWorkshop(ws));
@@ -40,7 +40,11 @@ const WorkshopListScreen = ({ navigation }: any) => {
           <Card key={ws.id} style={styles.wsCard} onPress={() => handleSelect(ws)}>
             <View style={styles.wsRow}>
               <View style={styles.wsImage}>
-                <Ionicons name="business" size={30} color={colors.accent.primary} />
+                {ws.imageUrl ? (
+                  <Image source={{ uri: ws.imageUrl }} style={{ width: '100%', height: '100%', borderRadius: borderRadius.md, resizeMode: 'cover' }} />
+                ) : (
+                  <Ionicons name="business" size={30} color={colors.accent.primary} />
+                )}
               </View>
               <View style={styles.wsInfo}>
                 <Text style={styles.wsName}>{ws.name}</Text>

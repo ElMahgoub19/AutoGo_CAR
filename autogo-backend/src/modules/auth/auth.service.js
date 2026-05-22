@@ -64,6 +64,61 @@ class AuthService {
     };
   }
 
+  // Sync Clerk User (Google / Apple / Phone Login)
+  async clerkSync({ email, phone, name, avatarUrl }) {
+    if (!email && !phone) {
+      throw new AppError('البريد الإلكتروني أو رقم الهاتف مطلوب', 400);
+    }
+
+    let user = null;
+    
+    if (email) {
+      user = await prisma.user.findUnique({ where: { email } });
+    }
+    
+    if (!user && phone) {
+      user = await prisma.user.findUnique({ where: { phone } });
+    }
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email: email || null,
+          phone: phone || null,
+          name: name || 'مستخدم جديد',
+          avatarUrl,
+          isVerified: true,
+          wallet: { create: { balance: 0 } },
+        },
+        include: { wallet: true },
+      });
+    } else {
+      // Update avatar or name if we want to keep them in sync, or just return existing
+      if (avatarUrl && !user.avatarUrl) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { avatarUrl },
+        });
+      }
+    }
+
+    const tokens = generateTokens(user.id);
+
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        city: user.city,
+        avatarUrl: user.avatarUrl,
+        membershipType: user.membershipType,
+        points: user.points,
+      },
+      ...tokens,
+    };
+  }
+
   // Sign up with full profile
   async signUp({ name, phone, email }) {
     // Check if phone already exists

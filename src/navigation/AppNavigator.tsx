@@ -1,11 +1,15 @@
-// AutoGo - Navigation Configuration
+// AutoGo - Navigation Configuration (Mock Mode - بدون Clerk)
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../hooks';
+import { fetchCars } from '../store/slices/garageSlice';
+import { fetchActiveOrders, fetchOrderHistory } from '../store/slices/ordersSlice';
+import { fetchAddresses } from '../store/slices/addressSlice';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 import { borderRadius } from '../theme/spacing';
@@ -104,19 +108,26 @@ const MainTabs: React.FC = () => {
   );
 };
 
-// Root Navigator
+// Root Navigator — يعتمد على Redux فقط بدلاً من Clerk
 const AppNavigator: React.FC = () => {
-  const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth);
-  
-  // We removed the global isLoading spinner that was based on state.auth.isLoading
-  // because it causes screens to unmount during auth requests (like sendOTP).
-  // Each screen now handles its own loading state for better UX.
+  const dispatch = useAppDispatch();
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  // تحميل البيانات عند تسجيل الدخول
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchCars());
+      dispatch(fetchActiveOrders());
+      dispatch(fetchOrderHistory());
+      dispatch(fetchAddresses());
+    }
+  }, [isAuthenticated, dispatch]);
 
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_left' }}>
         {!isAuthenticated ? (
-          // Auth flow
+          // Auth flow — غير مسجل الدخول
           <>
             <Stack.Screen name="Splash" component={SplashScreen} options={{ animation: 'fade' }} />
             <Stack.Screen name="Onboarding" component={OnboardingScreen} />
@@ -127,7 +138,7 @@ const AppNavigator: React.FC = () => {
             <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           </>
         ) : (
-          // Main app flow
+          // Main app flow — مسجل الدخول
           <>
             <Stack.Screen name="MainTabs" component={MainTabs} options={{ animation: 'fade' }} />
             {/* Car screens */}

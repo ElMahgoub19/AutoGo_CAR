@@ -3,6 +3,7 @@
     "name": "AutoGo",
     "slug": "AutoGo",
     "version": "1.0.0",
+    "scheme": "autogo",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

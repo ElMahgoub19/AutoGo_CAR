@@ -40,7 +40,9 @@ const SOSScreen = ({ navigation }) => {
           <View style={styles.locationDot} />
           <View style={{ flex: 1 }}>
             <Text style={styles.locationLabel}>موقعك الحالي</Text>
-            <Text style={styles.locationAddress}>حي الملقا، طريق الملك فهد، الرياض</Text>
+            <Text style={styles.locationAddress}>
+              {locationSet ? (activeCar?.lastLocation?.address || 'تم تحديد الموقع بنجاح') : 'جاري تحديد موقعك التلقائي...'}
+            </Text>
           </View>
           <Ionicons name="location" size={22} color={colors.emergency.primary} />
         </View>

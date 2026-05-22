@@ -1,8 +1,6 @@
-// AutoGo - Auth Slice (Custom Backend OTP/JWT with mock fallback)
+// AutoGo - Auth Slice (Mock Mode - يعمل بدون Backend)
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import api, { saveTokens, clearTokens } from '../../api/apiClient';
 import type { User } from '../../types';
-import { mockUser } from '../../data/mockData';
 
 export interface AuthState {
   user: User | null;
@@ -13,9 +11,8 @@ export interface AuthState {
   error: string | null;
 }
 
-// Start with mock user so the app always looks professional
 const initialState: AuthState = {
-  user: mockUser,
+  user: null,
   isOnboarded: false,
   isProfileComplete: false,
   isAuthenticated: false,
@@ -23,69 +20,145 @@ const initialState: AuthState = {
   error: null,
 };
 
-// Send OTP to phone
+// ═══════════════════════════════════════════
+// بيانات المستخدم الافتراضية (Mock User)
+// ═══════════════════════════════════════════
+const createMockUser = (overrides: Partial<User> = {}): User => ({
+  id: 'mock-user-' + Date.now(),
+  name: 'أحمد محمد',
+  phone: '+201234567890',
+  email: 'ahmed@example.com',
+  avatarUrl: undefined,
+  city: 'القاهرة',
+  membership: 'ذهبي',
+  points: 2450,
+  ...overrides,
+} as User);
+
+// ═══════════════════════════════════════════
+// إرسال OTP صوري (Mock)
+// ═══════════════════════════════════════════
 export const sendOTP = createAsyncThunk(
   'auth/sendOTP',
   async (phone: string, { rejectWithValue }) => {
     try {
-      const res = await api.post('/auth/send-otp', { phone });
-      return res.data;
+      // محاكاة تأخير الشبكة
+      await new Promise(resolve => setTimeout(resolve, 800));
+      console.log(`[AutoGo Mock] OTP sent to ${phone} (any 4-digit code will work)`);
+      return { success: true, phone };
     } catch (err: any) {
-      return rejectWithValue(err.message || 'فشل إرسال رمز التحقق');
+      return rejectWithValue('فشل إرسال رمز التحقق');
     }
   }
 );
 
-// Verify OTP and login
-export const verifyOTP = createAsyncThunk(
-  'auth/verifyOTP',
+// ═══════════════════════════════════════════
+// التحقق من OTP صوري (Mock) - أي رمز 4 أرقام مقبول
+// ═══════════════════════════════════════════
+export const mockVerifyOTP = createAsyncThunk(
+  'auth/mockVerifyOTP',
   async ({ phone, otp }: { phone: string; otp: string }, { rejectWithValue }) => {
     try {
-      const res = await api.post('/auth/verify-otp', { phone, otp });
-      // Save tokens securely
-      await saveTokens(res.data.accessToken, res.data.refreshToken);
-      return res.data.user;
+      // محاكاة تأخير الشبكة
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      if (otp.length !== 4) {
+        return rejectWithValue('الرمز يجب أن يكون 4 أرقام');
+      }
+      
+      console.log(`[AutoGo Mock] OTP verified for ${phone}`);
+      
+      // إرجاع بيانات مستخدم وهمية
+      return createMockUser({ phone });
     } catch (err: any) {
-      return rejectWithValue(err.message || 'رمز التحقق غير صحيح');
+      return rejectWithValue('حدث خطأ في التحقق');
     }
   }
 );
 
-// Fetch current profile
-export const fetchProfile = createAsyncThunk(
-  'auth/fetchProfile',
-  async (_, { rejectWithValue }) => {
+// ═══════════════════════════════════════════
+// تسجيل دخول اجتماعي صوري (Google / Apple)
+// ═══════════════════════════════════════════
+export const mockSocialLogin = createAsyncThunk(
+  'auth/mockSocialLogin',
+  async (data: { provider: string; name: string; email: string; avatarUrl?: string }, { rejectWithValue }) => {
     try {
-      const res = await api.get('/users/me');
-      return res.data;
+      // محاكاة تأخير الشبكة
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      
+      console.log(`[AutoGo Mock] ${data.provider} login successful`);
+      
+      return createMockUser({
+        name: data.name,
+        email: data.email,
+        avatarUrl: data.avatarUrl,
+      });
     } catch (err: any) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(`فشل تسجيل الدخول بـ ${data.provider}`);
     }
   }
 );
 
-// Update profile
+// ═══════════════════════════════════════════
+// تحديث الملف الشخصي (صوري)
+// ═══════════════════════════════════════════
 export const updateProfileAsync = createAsyncThunk(
   'auth/updateProfile',
-  async (data: Partial<User>, { rejectWithValue }) => {
+  async (data: Partial<User>, { getState, rejectWithValue }) => {
     try {
-      const res = await api.put('/users/me', data);
-      return res.data;
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return data;
     } catch (err: any) {
-      return rejectWithValue(err.message);
+      return rejectWithValue('فشل تحديث الملف الشخصي');
     }
   }
 );
 
-// Logout
+// ═══════════════════════════════════════════
+// تحديث الصورة الشخصية (صوري)
+// ═══════════════════════════════════════════
+export const updateAvatarAsync = createAsyncThunk(
+  'auth/updateAvatar',
+  async (avatarUrl: string, { rejectWithValue }) => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return { avatarUrl };
+    } catch (err: any) {
+      return rejectWithValue('فشل تحديث الصورة');
+    }
+  }
+);
+
+// ═══════════════════════════════════════════
+// جلب الملف الشخصي (صوري)
+// ═══════════════════════════════════════════
+export const fetchProfile = createAsyncThunk(
+  'auth/fetchProfile',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const state = getState() as { auth: AuthState };
+      return state.auth.user;
+    } catch (err: any) {
+      return rejectWithValue('فشل جلب الملف الشخصي');
+    }
+  }
+);
+
+// ═══════════════════════════════════════════
+// تسجيل الخروج
+// ═══════════════════════════════════════════
 export const logoutAsync = createAsyncThunk(
   'auth/logout',
   async () => {
-    try { await api.post('/auth/logout'); } catch {}
-    await clearTokens();
+    await new Promise(resolve => setTimeout(resolve, 300));
+    console.log('[AutoGo Mock] User logged out');
   }
 );
 
+// ═══════════════════════════════════════════
+// Slice
+// ═══════════════════════════════════════════
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -121,23 +194,34 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Send OTP
+      // Send OTP (mock)
       .addCase(sendOTP.pending, (state) => { state.isLoading = true; state.error = null; })
       .addCase(sendOTP.fulfilled, (state) => { state.isLoading = false; })
       .addCase(sendOTP.rejected, (state, action) => { state.isLoading = false; state.error = action.payload as string; })
-      // Verify OTP
-      .addCase(verifyOTP.pending, (state) => { state.isLoading = true; state.error = null; })
-      .addCase(verifyOTP.fulfilled, (state, action) => {
+      // Mock Verify OTP
+      .addCase(mockVerifyOTP.pending, (state) => { state.isLoading = true; state.error = null; })
+      .addCase(mockVerifyOTP.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
         state.isProfileComplete = true;
       })
-      .addCase(verifyOTP.rejected, (state, action) => { state.isLoading = false; state.error = action.payload as string; })
-      // Fetch profile
-      .addCase(fetchProfile.fulfilled, (state, action) => {
+      .addCase(mockVerifyOTP.rejected, (state, action) => { state.isLoading = false; state.error = action.payload as string; })
+      // Mock Social Login
+      .addCase(mockSocialLogin.pending, (state) => { state.isLoading = true; state.error = null; })
+      .addCase(mockSocialLogin.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
+        state.isProfileComplete = true;
+      })
+      .addCase(mockSocialLogin.rejected, (state, action) => { state.isLoading = false; state.error = action.payload as string; })
+      // Fetch profile
+      .addCase(fetchProfile.fulfilled, (state, action) => {
+        if (action.payload) {
+          state.user = action.payload as User;
+          state.isAuthenticated = true;
+        }
       })
       // Update profile
       .addCase(updateProfileAsync.fulfilled, (state, action) => {
@@ -148,6 +232,12 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.isProfileComplete = false;
+      })
+      // Update Avatar
+      .addCase(updateAvatarAsync.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user = { ...state.user, ...action.payload };
+        }
       });
   },
 });
