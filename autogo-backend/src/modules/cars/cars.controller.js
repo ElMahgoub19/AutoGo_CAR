@@ -19,7 +19,8 @@ class CarsController {
 
   async addCar(req, res, next) {
     try {
-      const car = await carsService.addCar(req.user.id, req.body);
+      const userId = req.user?.id || 'guest';
+      const car = await carsService.addCar(userId, req.body);
       return created(res, car, 'تم إضافة السيارة بنجاح');
     } catch (err) { next(err); }
   }

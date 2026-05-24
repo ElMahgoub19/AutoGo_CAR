@@ -22,14 +22,31 @@ class CarsService {
   }
 
   async addCar(userId, data) {
+    // Resolve guest user
+    let resolvedUserId = userId;
+    if (userId === 'guest' || !userId) {
+      let guestUser = await prisma.user.findFirst({ where: { phone: 'guest' } });
+      if (!guestUser) {
+        guestUser = await prisma.user.create({
+          data: {
+            name: 'عميل ضيف',
+            phone: 'guest',
+            isVerified: false,
+            wallet: { create: { balance: 0 } },
+          },
+        });
+      }
+      resolvedUserId = guestUser.id;
+    }
+
     // Deactivate all other cars, make new one active
     await prisma.car.updateMany({
-      where: { userId },
+      where: { userId: resolvedUserId },
       data: { isActive: false },
     });
 
     const car = await prisma.car.create({
-      data: { ...data, userId, isActive: true },
+      data: { ...data, userId: resolvedUserId, isActive: true },
     });
     return car;
   }

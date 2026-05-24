@@ -154,16 +154,14 @@ const LoginScreen = ({ navigation }: any) => {
             </TouchableOpacity>
 
             {/* Apple Button */}
-            {Platform.OS === 'ios' && (
-              <TouchableOpacity 
-                style={styles.appleButton} 
-                onPress={handleAppleLogin} 
-                disabled={isLoading}
-              >
-                <Text style={styles.appleButtonText}>المتابعة باستخدام أبل</Text>
-                <Ionicons name="logo-apple" size={24} color="#FFFFFF" style={styles.socialIcon} />
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity 
+              style={styles.appleButton} 
+              onPress={handleAppleLogin} 
+              disabled={isLoading}
+            >
+              <Text style={styles.appleButtonText}>المتابعة باستخدام أبل</Text>
+              <Ionicons name="logo-apple" size={24} color="#FFFFFF" style={styles.socialIcon} />
+            </TouchableOpacity>
           </View>
 
           {/* روابط إضافية */}

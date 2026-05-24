@@ -2,7 +2,8 @@
 // Central HTTP utility for communicating with the backend
 import * as SecureStore from 'expo-secure-store';
 
-const BASE_URL = 'http://192.168.1.13:5000/api';
+const BASE_URL = 'http://192.168.1.234:5000/api';
+const SOCKET_URL = 'http://192.168.1.234:5000';
 
 // Token management
 const TOKEN_KEY = 'autogo_access_token';

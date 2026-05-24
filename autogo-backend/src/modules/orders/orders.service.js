@@ -1,17 +1,34 @@
 // AutoGo Backend - Orders Service
 const prisma = require('../../config/database');
 const { AppError } = require('../../middleware/errorHandler');
-const { emitToUser, emitToOrder } = require('../../config/socket');
+const { emitToUser, emitToOrder, emitToAllProviders } = require('../../config/socket');
 const { v4: uuidv4 } = require('uuid');
 
 class OrdersService {
   // Create SOS / Tow order
   async createTowOrder(userId, data) {
+    // If guest, find-or-create a guest user in DB
+    let resolvedUserId = userId;
+    if (userId === 'guest' || !userId) {
+      let guestUser = await prisma.user.findFirst({ where: { phone: 'guest' } });
+      if (!guestUser) {
+        guestUser = await prisma.user.create({
+          data: {
+            name: 'عميل ضيف',
+            phone: 'guest',
+            isVerified: false,
+            wallet: { create: { balance: 0 } },
+          },
+        });
+      }
+      resolvedUserId = guestUser.id;
+    }
+
     const orderNumber = `SOS-${Math.floor(1000 + Math.random() * 9000)}`;
     const order = await prisma.order.create({
       data: {
         orderNumber,
-        userId,
+        userId: resolvedUserId,
         carId: data.carId || null,
         type: 'ونش',
         status: 'pending',
@@ -46,11 +63,45 @@ class OrdersService {
         data: { orderId: order.id, status: 'on_way', label: 'في الطريق إليك', isCompleted: false },
       });
 
-      emitToUser(userId, 'order:driver_found', { orderId: order.id, driver });
+      emitToUser(resolvedUserId, 'order:driver_found', { orderId: order.id, driver });
     }
 
+    // Fetch real customer and car details for the provider app payload
+    const resolvedUser = await prisma.user.findUnique({ where: { id: resolvedUserId } });
+    const carDetails = data.carId ? await prisma.car.findUnique({ where: { id: data.carId } }) : null;
+
+    // Broadcast new order to ALL online providers in real-time
+    emitToAllProviders('order:new', {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      type: order.type,
+      status: order.status,
+      pickupAddress: order.pickupAddress,
+      pickupLat: data.latitude,
+      pickupLng: data.longitude,
+      estimatedPrice: data.price || 0,
+      createdAt: order.createdAt,
+      customer: {
+        name: resolvedUser?.name || data.customerName || 'عميل جديد',
+        phone: resolvedUser?.phone || data.customerPhone || '',
+      },
+      vehicle: {
+        type: carDetails ? carDetails.brand : (data.carType || 'سيارة'),
+        model: carDetails ? carDetails.model : (data.carModel || ''),
+        plate: carDetails ? carDetails.plate : (data.carPlate || ''),
+        color: carDetails ? carDetails.color : (data.carColor || ''),
+      },
+      problem: {
+        type: data.issueType || 'عطل عام',
+        description: data.notes || '',
+        severity: data.severity || 'medium',
+      },
+    });
+
+    console.log(`[Orders] New SOS order ${order.orderNumber} broadcasted to all providers`);
     return order;
   }
+
 
   // Create booking order (maintenance)
   async createBookingOrder(userId, data) {

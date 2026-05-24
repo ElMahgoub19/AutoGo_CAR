@@ -5,14 +5,17 @@ const { success, created } = require('../../utils/response');
 class OrdersController {
   async createTowOrder(req, res, next) {
     try {
-      const order = await ordersService.createTowOrder(req.user.id, req.body);
+      // Support guest orders (no token) - use a guest user or create one
+      const userId = req.user?.id || 'guest';
+      const order = await ordersService.createTowOrder(userId, req.body);
       return created(res, order, 'تم إنشاء طلب الونش');
     } catch (err) { next(err); }
   }
 
   async createBookingOrder(req, res, next) {
     try {
-      const order = await ordersService.createBookingOrder(req.user.id, req.body);
+      const userId = req.user?.id || 'guest';
+      const order = await ordersService.createBookingOrder(userId, req.body);
       return created(res, order, 'تم إنشاء الحجز');
     } catch (err) { next(err); }
   }

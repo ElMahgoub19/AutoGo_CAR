@@ -15,6 +15,8 @@ const ordersRoutes = require('./modules/orders/orders.routes');
 const walletRoutes = require('./modules/wallet/wallet.routes');
 const notificationsRoutes = require('./modules/notifications/notifications.routes');
 const addressesRoutes = require('./modules/addresses/addresses.routes');
+const providersRoutes = require('./modules/providers/providers.routes');
+const invoicesRoutes = require('./modules/invoices/invoices.routes');
 
 const app = express();
 
@@ -49,6 +51,8 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/addresses', addressesRoutes);
+app.use('/api/providers', providersRoutes);
+app.use('/api/invoice', invoicesRoutes);
 
 // ─── 404 Handler ──────────────────────────────────────────────────
 app.use((req, res) => {

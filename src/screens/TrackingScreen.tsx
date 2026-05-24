@@ -12,6 +12,7 @@ import { spacing, borderRadius } from '../theme/spacing';
 import Card from '../components/Card';
 import { mockDriver, mockWorkshops } from '../data/mockData';
 import type { RootState, RootStackScreenProps, Workshop } from '../types';
+import socketClient from '../api/socketClient';
 
 const API_KEY = "YOUR_API_KEY"; 
 
@@ -154,31 +155,32 @@ const TrackingScreen = ({ navigation }: RootStackScreenProps<'Tracking'>) => {
     }
   }, [location?.latitude, location?.longitude, nearestWorkshop?.id]);
 
-  // تحريك الـ Driver للمحاكاة
+  // Live Tracking via Socket.IO
   useEffect(() => {
-    if (!driverLocation || !location) return;
-    const simulationInterval = setInterval(() => {
-      setDriverLocation((prev) => {
-        if (!prev || !location) return prev;
-        
-        // حساب زحف الونش ناحية المستخدم (خطوات بسيطة)
-        const latStep = (location.latitude - prev.latitude) * 0.05;
-        const lngStep = (location.longitude - prev.longitude) * 0.05;
+    // Assuming activeOrder exists in trackingData or we get it from route
+    const orderId = trackingData?.orderId || 'demo_id';
+    
+    // Default user ID for demo purposes, in a real app fetch from Auth state
+    const socket = socketClient.connect('demo_user_123');
+    socketClient.joinOrder(orderId);
 
-        // مبيتحركش لو قرب جداً (عشان ميفضلش يتهز)
-        if (Math.abs(latStep) < 0.00001 && Math.abs(lngStep) < 0.00001) {
-          return prev;
-        }
-
-        return {
-          latitude: prev.latitude + latStep,
-          longitude: prev.longitude + lngStep,
-        };
+    if (socket) {
+      socket.on('driver:location', (data: { lat: number; lng: number }) => {
+        setDriverLocation({ latitude: data.lat, longitude: data.lng });
       });
-    }, 2000);
+      
+      socket.on('order:status', (data: any) => {
+        // You could dispatch an action to update Redux trackingData.steps here
+        console.log('Order status updated:', data.status);
+      });
+    }
 
-    return () => clearInterval(simulationInterval);
-  }, [driverLocation === null, location?.latitude]);
+    return () => {
+      socket?.off('driver:location');
+      socket?.off('order:status');
+      socketClient.disconnect();
+    };
+  }, []);
 
   return (
     <LinearGradient colors={colors.gradient.primary} style={styles.container}>
